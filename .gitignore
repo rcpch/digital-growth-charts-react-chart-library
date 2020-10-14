@@ -3,6 +3,7 @@
 
 # dependencies
 node_modules
+example/node_modules
 
 # builds
 build
@@ -20,3 +21,9 @@ dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+.prettierrc
+.travis.yml
+.eslintrc
+.eslintignore
+.editorconfig
