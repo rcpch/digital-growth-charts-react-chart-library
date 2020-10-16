@@ -5,8 +5,8 @@ import 'digital-growth-charts-react-chart-component/dist/index.css'
 
 const App = () => {
   return <RCPCHChartComponent 
-            measurementMethod='weight' 
-            sex='male' 
+            measurementMethod='height' 
+            sex='female' 
             centilesColour='#0d0c0a' 
             width={700} 
             height={600}

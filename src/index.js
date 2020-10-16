@@ -6,85 +6,81 @@ import {
   YAxis,
   ScatterChart,
   ZAxis,
-  Tooltip
+  Tooltip,
+  CartesianGrid,
+  Brush,
+  ReferenceLine
 } from 'recharts'
-import data from './chartdata'
+import maleData from './maleChartData'
+import femaleData from './femaleChartData'
 
+const initialState = {
+  animation: true,
+  sex: 'male',
+  xAxisLabel: 'Decimal Age (yrs)',
+  yAxisLabel: 'Weight (kg)',
+  yAxisUnits: 'kg',
+  chartTitle: ''
+}
 class RCPCHChartComponent extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      // measurementMethod: this.props.measurementMethod,
-      sex: 'male',
-      refAreaLeft: '',
-      refAreaRight: '',
-      left: 'dataMin',
-      right: 'dataMax',
-      top: 'dataMax+1',
-      bottom: 'dataMin',
-      top2: 'dataMax+50',
-      bottom2: 'dataMin+50',
-      xAxisLabel: 'Decimal Age (yrs)',
-      yAxisLabel: 'Weight (kg)',
-      yAxisUnits: 'kg'
-    }
-  }
-
-  render() {
-    let centiles = []
-    let yAxisLabel = ''
-    let yAxisUnits = ''
+    this.state = initialState
     let title = ''
+    let data = maleData
     if (this.props.sex === 'male') {
       title = 'Boys'
     } else {
       title = 'Girls'
+      data = femaleData
     }
 
     switch (this.props.measurementMethod) {
       case 'height':
-        centiles = data.centile_data.height
-        yAxisLabel = 'Length/Height (cm)'
-        yAxisUnits = 'cm'
         title += ' - Length/Height Chart'
+        this.state = {
+          centiles: data.centile_data.height,
+          yAxisLabel: 'Length/Height (cm)',
+          yAxisUnits: 'cm',
+          chartTitle: title
+        }
         break
       case 'weight':
-        centiles = data.centile_data.weight
-        yAxisLabel = 'Weight (kg)'
-        yAxisUnits = 'kg'
         title += ' - Weight Chart'
+        this.state = {
+          centiles: data.centile_data.weight,
+          yAxisLabel: 'Weight (kg)',
+          yAxisUnits: 'kg',
+          chartTitle: title
+        }
         break
       case 'bmi':
-        centiles = data.centile_data.bmi
-        yAxisLabel = 'BMI (kg/m2)'
-        yAxisUnits = 'kg/m2'
         title += ' - Body Mass Index Chart'
+        this.state = {
+          centiles: data.centile_data.bmi,
+          yAxisLabel: 'BMI (kg/m2)',
+          chartTitle: title
+        }
         break
       case 'ofc':
-        centiles = data.centile_data.ofc
-        yAxisLabel = 'Head Circumference (cm)'
-        yAxisUnits = 'cm'
         title += 'Head Circumference Chart'
+        this.state = {
+          centiles: data.centile_data.ofc,
+          yAxisLabel: 'Head Circumference (cm)',
+          yAxisUnits: 'cm',
+          chartTitle: title
+        }
         break
       default:
         break
     }
+  }
 
-    const {
-      barIndex,
-      left,
-      right,
-      refAreaLeft,
-      refAreaRight,
-      top,
-      bottom,
-      top2,
-      bottom2
-    } = this.state
-
+  render() {
+    const { centiles } = this.state
     return (
       <div className={styles.chartContainer}>
-        <h3>{title}</h3>
+        <h3>{this.state.chartTitle}</h3>
         <ScatterChart
           width={this.props.width}
           height={this.props.height}
@@ -94,13 +90,12 @@ class RCPCHChartComponent extends Component {
             scale='time'
             type='number'
             dataKey='x'
-            domain={[left, right]}
             allowDecimals={false}
-            // interval='preserveStartEnd'
             label={{
               value: this.state.xAxisLabel,
               position: 'bottom'
             }}
+            animationDuration={300}
           />
           <YAxis
             dataKey='y'
@@ -112,6 +107,7 @@ class RCPCHChartComponent extends Component {
               angle: -90,
               position: 'left'
             }}
+            animationDuration={300}
           />
           <ZAxis
             range={[1, 1]}
@@ -119,10 +115,9 @@ class RCPCHChartComponent extends Component {
             dataKey='label'
             unit=' centile'
           />
-          <Tooltip
-            cursor={{ strokeDasharray: '3 3' }}
-            wrapperStyle={{ width: 100, backgroundColor: '#ccc' }}
-          />
+          <CartesianGrid strokeDasharray='3 3' />
+          <ReferenceLine y={0} stroke='#000' />
+          <Brush dataKey='y' height={30} width={100} stroke='#8884d8' />
           {/* 0.4th */}
           <Scatter
             name={centiles[0].centiles}
@@ -428,6 +423,7 @@ class RCPCHChartComponent extends Component {
             }}
             shape={<RenderNoShape />}
           />
+          <Tooltip cursor={{strokeDasharray: '3 3'}}/>
         </ScatterChart>
       </div>
     )

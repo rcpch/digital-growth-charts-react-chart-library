@@ -15,7 +15,7 @@
 
 
 
-var data = {
+var maleData = {
     "centile_data": {
       "bmi": [
         {
@@ -49780,4 +49780,4 @@ var data = {
     }
   }
 
-export default data;
+export default maleData;
