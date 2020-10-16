@@ -11,3 +11,14 @@
   background-color: #fff; */
 }
 
+.customTooltip {
+  display:inline-block;
+    position:relative;
+    color: 	#232b2b;
+    text-align:left;
+    font-weight: 200;
+    padding: 5px;
+    background-color: white;
+    z-index: 99;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}

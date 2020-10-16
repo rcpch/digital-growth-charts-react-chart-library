@@ -8,8 +8,7 @@ import {
   ZAxis,
   Tooltip,
   CartesianGrid,
-  Brush,
-  ReferenceLine
+  Brush
 } from 'recharts'
 import maleData from './maleChartData'
 import femaleData from './femaleChartData'
@@ -80,6 +79,7 @@ class RCPCHChartComponent extends Component {
     const { centiles } = this.state
     return (
       <div className={styles.chartContainer}>
+        {/* <ResponsiveContainer width='100%' height='100%'> */}
         <h3>{this.state.chartTitle}</h3>
         <ScatterChart
           width={this.props.width}
@@ -109,14 +109,8 @@ class RCPCHChartComponent extends Component {
             }}
             animationDuration={300}
           />
-          <ZAxis
-            range={[1, 1]}
-            stroke={this.props.centilesColour}
-            dataKey='label'
-            unit=' centile'
-          />
+          <ZAxis range={[5, 5]} dataKey='label' unit='centile' />
           <CartesianGrid strokeDasharray='3 3' />
-          <ReferenceLine y={0} stroke='#000' />
           <Brush dataKey='y' height={30} width={100} stroke='#8884d8' />
           {/* 0.4th */}
           <Scatter
@@ -127,7 +121,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[0].centiles}
@@ -137,7 +131,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[0].centiles}
@@ -147,7 +141,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[0].centiles}
@@ -157,32 +151,32 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           {/* 2nd Centile */}
           <Scatter
             name={centiles[1].centiles}
             data={centiles[1].uk90_preterm_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[1].centiles}
             data={centiles[1].who_infant_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[1].centiles}
             data={centiles[1].who_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[1].centiles}
             data={centiles[1].uk90_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           {/* 9th Centile */}
           <Scatter
@@ -193,7 +187,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[2].centiles}
@@ -203,7 +197,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[2].centiles}
@@ -213,7 +207,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[2].centiles}
@@ -223,32 +217,33 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           {/* 25th Centile */}
           <Scatter
             name={centiles[3].centiles}
             data={centiles[3].uk90_preterm_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[3].centiles}
             data={centiles[3].who_infant_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[3].centiles}
             data={centiles[3].who_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[3].centiles}
             data={centiles[3].uk90_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            shape='circle'
+            fill='#00000000'
           />
           {/* 50th Centile */}
           <Scatter
@@ -259,7 +254,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[4].centiles}
@@ -269,7 +264,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[4].centiles}
@@ -279,7 +274,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[4].centiles}
@@ -289,32 +284,32 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           {/* 75th Centile */}
           <Scatter
             name={centiles[5].centiles}
             data={centiles[5].uk90_preterm_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[5].centiles}
             data={centiles[5].who_infant_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[5].centiles}
             data={centiles[5].who_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[5].centiles}
             data={centiles[5].uk90_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           {/* 91st Centile */}
           <Scatter
@@ -325,7 +320,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[6].centiles}
@@ -335,7 +330,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[6].centiles}
@@ -345,7 +340,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[6].centiles}
@@ -355,32 +350,32 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           {/* 98th Centile */}
           <Scatter
             name={centiles[7].centiles}
             data={centiles[7].uk90_preterm_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[7].centiles}
             data={centiles[7].who_infant_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[7].centiles}
             data={centiles[7].who_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[7].centiles}
             data={centiles[7].uk90_child_data}
             line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           {/* 99.6th Centile */}
           <Scatter
@@ -391,7 +386,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[8].centiles}
@@ -401,7 +396,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[8].centiles}
@@ -411,7 +406,7 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
           <Scatter
             name={centiles[8].centiles}
@@ -421,17 +416,42 @@ class RCPCHChartComponent extends Component {
               strokeWidth: 1,
               strokeDasharray: '5 10'
             }}
-            shape={<RenderNoShape />}
+            fill='#00000000'
           />
-          <Tooltip cursor={{strokeDasharray: '3 3'}}/>
+          <Tooltip
+            cursor={{ strokeDasharray: '3 3', strokeWidth: 2 }}
+            dataKey='z'
+            content={<CustomTooltip />}
+          />
         </ScatterChart>
+        {/* </ResponsiveContainer> */}
       </div>
     )
   }
 }
 
-const RenderNoShape = (props) => {
-  return null
+const CustomTooltip = ({ active, payload }) => {
+  const th = 'th'
+  const nd = 'nd'
+  const st = 'st'
+  let suffix = th
+
+  if (active) {
+    if (payload[2].value === 2) {
+      suffix = nd
+    }
+    if (payload[2].value === 91) {
+      suffix = st
+    }
+    return (
+      <div className={styles.customTooltip}>
+        {payload[2].value}
+        <sup>{suffix}</sup> centile
+      </div>
+    )
+  } else {
+    return null
+  }
 }
 
 export default RCPCHChartComponent
