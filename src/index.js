@@ -1,30 +1,44 @@
 import React, { Component } from 'react'
 import styles from './styles.module.css'
 import {
-  Scatter,
   XAxis,
   YAxis,
-  ScatterChart,
   ZAxis,
   Tooltip,
   CartesianGrid,
-  Brush
+  Brush,
+  LineChart,
+  Line
 } from 'recharts'
 import maleData from './maleChartData'
 import femaleData from './femaleChartData'
 
-const initialState = {
-  animation: true,
-  sex: 'male',
-  xAxisLabel: 'Decimal Age (yrs)',
-  yAxisLabel: 'Weight (kg)',
-  yAxisUnits: 'kg',
-  chartTitle: ''
-}
+/*
+  Should receive data points in this format from API
+  {'child_data': 
+    {'bmi_sds': [{'x': 2.5872689938398357, 'y': -6.324286089179686}, {'x': 2.5872689938398357, 'y': -6.324286089179686}], 
+    'bmis': [{'x': 2.5872689938398357, 'y': 9.722222222222223}, {'x': 2.5872689938398357, 'y': 9.722222222222223}], 
+    'height_sds': [{'x': 2.5872689938398357, 'y': 7.965898960985831}, {'x': 2.5872689938398357, 'y': 7.965898960985831}], 
+    'heights': [{'x': 2.5872689938398357, 'y': 120.0}, {'x': 2.5872689938398357, 'y': 120.0}], 
+    'ofc_sds': [{'x': 2.5872689938398357, 'y': 2.809894553629454}, {'x': 2.5872689938398357, 'y': 2.809894553629454}], 
+    'ofcs': [{'x': 2.5872689938398357, 'y': 52.0}, {'x': 2.5872689938398357, 'y': 52.0}], 
+    'weight_sds': [{'x': 2.5872689938398357, 'y': 0.6336087835772052}, {'x': 2.5872689938398357, 'y': 0.6336087835772052}], 
+    'weights': [{'x': 2.5872689938398357, 'y': 14.0}, {'x': 2.5872689938398357, 'y': 14.0}]}, 
+    'sex': 'female'}
+
+    These are passed from the client app to the chart library as measurementsArray and measurementsSDSArray props.
+  
+    the sds values for each measurement method are x for decimal age, y for sds
+    the measurements for each measurement method are x for decimal age, y for measurement
+    each measurement and each sds has 2 decimal ages: one corrected and one chronological
+    each array of values should be plotted as a series so they can be joined by a line
+
+    TODO - API needs also to return centile advice string for measurement
+*/
+
 class RCPCHChartComponent extends Component {
   constructor(props) {
     super(props)
-    this.state = initialState
     let title = ''
     let data = maleData
     if (this.props.sex === 'male') {
@@ -34,60 +48,135 @@ class RCPCHChartComponent extends Component {
       data = femaleData
     }
 
+    const maxAge = Math.max.apply(
+      Math,
+      this.props.measurementsArray.map(function (o) {
+        return o.x
+      })
+    )
+    const minAge = Math.min.apply(
+      Math,
+      this.props.measurementsArray.map(function (o) {
+        return o.x
+      })
+    )
+
     switch (this.props.measurementMethod) {
       case 'height':
         title += ' - Length/Height Chart'
         this.state = {
           centiles: data.centile_data.height,
+          xAxisLabel: 'Decimal Age (yrs)',
           yAxisLabel: 'Length/Height (cm)',
           yAxisUnits: 'cm',
-          chartTitle: title
+          chartTitle: title,
+          minAge: minAge,
+          maxAge: maxAge
         }
         break
       case 'weight':
         title += ' - Weight Chart'
         this.state = {
           centiles: data.centile_data.weight,
+          xAxisLabel: 'Decimal Age (yrs)',
           yAxisLabel: 'Weight (kg)',
           yAxisUnits: 'kg',
-          chartTitle: title
+          chartTitle: title,
+          minAge: minAge,
+          maxAge: maxAge
         }
         break
       case 'bmi':
         title += ' - Body Mass Index Chart'
         this.state = {
           centiles: data.centile_data.bmi,
+          xAxisLabel: 'Decimal Age (yrs)',
           yAxisLabel: 'BMI (kg/m2)',
-          chartTitle: title
+          chartTitle: title,
+          minAge: minAge,
+          maxAge: maxAge
         }
         break
       case 'ofc':
         title += 'Head Circumference Chart'
         this.state = {
           centiles: data.centile_data.ofc,
+          xAxisLabel: 'Decimal Age (yrs)',
           yAxisLabel: 'Head Circumference (cm)',
           yAxisUnits: 'cm',
-          chartTitle: title
+          chartTitle: title,
+          minAge: minAge,
+          maxAge: maxAge
         }
         break
       default:
+        this.state = {
+          centiles: data.centile_data.height,
+          sex: 'male',
+          xAxisLabel: 'Decimal Age (yrs)',
+          yAxisLabel: 'Length/Height (cm)',
+          yAxisUnits: 'cm',
+          chartTitle: "Boys' " + title,
+          minAge: minAge,
+          maxAge: maxAge
+        }
         break
     }
   }
 
   render() {
     const { centiles } = this.state
+    const centilesMap = []
+    for (let j = 0; j < 9; j++) {
+      if (this.state.minAge < 0) {
+        centilesMap.push({ index: j, reference: centiles[j].uk90_preterm_data })
+      }
+      if (this.state.minAge < 2) {
+        centilesMap.push({ index: j, reference: centiles[j].who_infant_data })
+      }
+      if (this.state.minAge < 4) {
+        centilesMap.push({ index: j, reference: centiles[j].who_child_data })
+      } else {
+        centilesMap.push({ index: j, reference: centiles[j].uk90_child_data })
+      }
+    }
+
+    const allCentiles = centilesMap.map((centileIndex, index) => {
+      if (centileIndex.index % 2 === 0) {
+        return (
+          <Line
+            key={index}
+            data={centileIndex.reference}
+            dataKey='y'
+            type='monotone'
+            strokeDasharray='5 5'
+            dot={false}
+          />
+        )
+      } else {
+        return (
+          <Line
+            key={index}
+            data={centileIndex.reference}
+            dataKey='y'
+            type='monotone'
+            // strokeDasharray='5 5'
+            dot={false}
+          />
+        )
+      }
+    })
+
     return (
       <div className={styles.chartContainer}>
-        {/* <ResponsiveContainer width='100%' height='100%'> */}
         <h3>{this.state.chartTitle}</h3>
-        <ScatterChart
+        <LineChart
           width={this.props.width}
           height={this.props.height}
-          margin={{ top: 20, right: 20, bottom: 30, left: 10 }}
+          margin={{ top: 20, right: 20, bottom: 50, left: 10 }}
         >
           <XAxis
-            scale='time'
+            scale='linear'
             type='number'
             dataKey='x'
             allowDecimals={false}
@@ -109,322 +198,11 @@ class RCPCHChartComponent extends Component {
             }}
             animationDuration={300}
           />
+          {allCentiles}
           <ZAxis range={[5, 5]} dataKey='label' unit='centile' />
           <CartesianGrid strokeDasharray='3 3' />
           <Brush dataKey='y' height={30} width={100} stroke='#8884d8' />
-          {/* 0.4th */}
-          <Scatter
-            name={centiles[0].centiles}
-            data={centiles[0].uk90_preterm_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[0].centiles}
-            data={centiles[0].who_infant_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[0].centiles}
-            data={centiles[0].who_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[0].centiles}
-            data={centiles[0].uk90_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          {/* 2nd Centile */}
-          <Scatter
-            name={centiles[1].centiles}
-            data={centiles[1].uk90_preterm_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[1].centiles}
-            data={centiles[1].who_infant_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[1].centiles}
-            data={centiles[1].who_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[1].centiles}
-            data={centiles[1].uk90_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          {/* 9th Centile */}
-          <Scatter
-            name={centiles[2].centiles}
-            data={centiles[2].uk90_preterm_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[2].centiles}
-            data={centiles[2].who_infant_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[2].centiles}
-            data={centiles[2].who_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[2].centiles}
-            data={centiles[2].uk90_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          {/* 25th Centile */}
-          <Scatter
-            name={centiles[3].centiles}
-            data={centiles[3].uk90_preterm_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[3].centiles}
-            data={centiles[3].who_infant_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[3].centiles}
-            data={centiles[3].who_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[3].centiles}
-            data={centiles[3].uk90_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            shape='circle'
-            fill='#00000000'
-          />
-          {/* 50th Centile */}
-          <Scatter
-            name={centiles[4].centiles}
-            data={centiles[4].uk90_preterm_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[4].centiles}
-            data={centiles[4].who_infant_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[4].centiles}
-            data={centiles[4].who_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[4].centiles}
-            data={centiles[4].uk90_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          {/* 75th Centile */}
-          <Scatter
-            name={centiles[5].centiles}
-            data={centiles[5].uk90_preterm_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[5].centiles}
-            data={centiles[5].who_infant_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[5].centiles}
-            data={centiles[5].who_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[5].centiles}
-            data={centiles[5].uk90_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          {/* 91st Centile */}
-          <Scatter
-            name={centiles[6].centiles}
-            data={centiles[6].uk90_preterm_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[6].centiles}
-            data={centiles[6].who_infant_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[6].centiles}
-            data={centiles[6].who_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[6].centiles}
-            data={centiles[6].uk90_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          {/* 98th Centile */}
-          <Scatter
-            name={centiles[7].centiles}
-            data={centiles[7].uk90_preterm_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[7].centiles}
-            data={centiles[7].who_infant_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[7].centiles}
-            data={centiles[7].who_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[7].centiles}
-            data={centiles[7].uk90_child_data}
-            line={{ stroke: this.props.centilesColour, strokeWidth: 1 }}
-            fill='#00000000'
-          />
-          {/* 99.6th Centile */}
-          <Scatter
-            name={centiles[8].centiles}
-            data={centiles[8].uk90_preterm_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[8].centiles}
-            data={centiles[8].who_infant_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[8].centiles}
-            data={centiles[8].who_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Scatter
-            name={centiles[8].centiles}
-            data={centiles[8].uk90_child_data}
-            line={{
-              stroke: this.props.centilesColour,
-              strokeWidth: 1,
-              strokeDasharray: '5 10'
-            }}
-            fill='#00000000'
-          />
-          <Tooltip
-            cursor={{ strokeDasharray: '3 3', strokeWidth: 2 }}
-            dataKey='z'
-            content={<CustomTooltip />}
-          />
-        </ScatterChart>
-        {/* </ResponsiveContainer> */}
+        </LineChart>
       </div>
     )
   }

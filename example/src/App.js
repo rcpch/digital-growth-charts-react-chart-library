@@ -10,8 +10,8 @@ const App = () => {
             centilesColour='#0d0c0a' 
             width={700} 
             height={600}
-            minimumDecimalAge = {1}
-            maximumDecimalAge = {5.5}
+            measurementsArray = {[{'x': -0.02, 'y': 120.0}, {'x': -0.02, 'y': 120.0}]}
+            measurementsSDSArray = {[{'x': 2.5872689938398357, 'y': 7.965898960985831}, {'x': 2.5872689938398357, 'y': 7.965898960985831}]}
             />
 }
 
