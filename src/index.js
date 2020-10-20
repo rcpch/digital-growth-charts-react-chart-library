@@ -7,8 +7,8 @@ import {
   Tooltip,
   CartesianGrid,
   Brush,
-  LineChart,
-  Line
+  ScatterChart,
+  Scatter
 } from 'recharts'
 import maleData from './maleChartData'
 import femaleData from './femaleChartData'
@@ -141,36 +141,70 @@ class RCPCHChartComponent extends Component {
       }
     }
 
+    const chronologicalAgeFormatter = (item) => {
+      let returnString = item
+      if (item >= 2 && item % 1 === 0.5) {
+        returnString = Math.floor(item) + 'y 6 mths'
+      }
+      if (item < 2) {
+        returnString = item * 12 + ' months'
+      }
+      if (item < 0.5) {
+        returnString = (item * 365.25) / 7 + ' weeks'
+      }
+      if (item <= 0) {
+        const weeks = Math.floor((280 - item * 365.25) / 7)
+        const remainder = ((280 - item * 365.25) / 7 - weeks) * 7
+        returnString = weeks + '+' + remainder + ' weeks'
+      }
+      return returnString
+    }
+
     const allCentiles = centilesMap.map((centileIndex, index) => {
       if (centileIndex.index % 2 === 0) {
         return (
-          <Line
+          <Scatter
             key={index}
+            nameKey={centileIndex.reference.label}
             data={centileIndex.reference}
             dataKey='y'
-            type='monotone'
-            strokeDasharray='5 5'
-            dot={false}
+            // type='monotone'
+            // dot={false}
+            fill='#00000000'
+            line={{
+              stroke: this.props.centilesColour,
+              strokeDasharray: '5 5'
+            }}
           />
         )
       } else {
         return (
-          <Line
+          <Scatter
+            nameKey={centileIndex.reference.label}
             key={index}
             data={centileIndex.reference}
             dataKey='y'
-            type='monotone'
+            line={{
+              stroke: this.props.centilesColour
+            }}
+            // type='monotone'
             // strokeDasharray='5 5'
-            dot={false}
+            // dot={false}
+            fill='#00000000'
           />
         )
       }
     })
 
+    const intervalFormatter = (item) => {
+      console.log(item)
+      return 1
+    }
+
     return (
       <div className={styles.chartContainer}>
         <h3>{this.state.chartTitle}</h3>
-        <LineChart
+        <ScatterChart
           width={this.props.width}
           height={this.props.height}
           margin={{ top: 20, right: 20, bottom: 50, left: 10 }}
@@ -178,13 +212,17 @@ class RCPCHChartComponent extends Component {
           <XAxis
             scale='linear'
             type='number'
+            name='Decimal Age'
             dataKey='x'
             allowDecimals={false}
             label={{
               value: this.state.xAxisLabel,
               position: 'bottom'
             }}
+            tickFormatter={chronologicalAgeFormatter}
             animationDuration={300}
+            domain={['auto', 'auto']}
+            interval={intervalFormatter}
           />
           <YAxis
             dataKey='y'
@@ -199,16 +237,23 @@ class RCPCHChartComponent extends Component {
             animationDuration={300}
           />
           {allCentiles}
-          <ZAxis range={[5, 5]} dataKey='label' unit='centile' />
+          <ZAxis
+            range={[15, 15]}
+            dataKey='label'
+            unit='centile'
+            name='Centile'
+          />
           <CartesianGrid strokeDasharray='3 3' />
           <Brush dataKey='y' height={30} width={100} stroke='#8884d8' />
-        </LineChart>
+          <Tooltip content={<CustomTooltip />} />
+        </ScatterChart>
       </div>
     )
   }
 }
 
 const CustomTooltip = ({ active, payload }) => {
+
   const th = 'th'
   const nd = 'nd'
   const st = 'st'
