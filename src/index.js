@@ -187,9 +187,6 @@ class RCPCHChartComponent extends Component {
             line={{
               stroke: this.props.centilesColour
             }}
-            // type='monotone'
-            // strokeDasharray='5 5'
-            // dot={false}
             fill='#00000000'
           />
         )
@@ -203,7 +200,9 @@ class RCPCHChartComponent extends Component {
 
     return (
       <div className={styles.chartContainer}>
-        <h3>{this.state.chartTitle}</h3>
+        <div className={styles.chartTitle}>
+          <h3>{this.state.chartTitle}</h3>
+        </div>
         <ScatterChart
           width={this.props.width}
           height={this.props.height}
@@ -237,6 +236,17 @@ class RCPCHChartComponent extends Component {
             animationDuration={300}
           />
           {allCentiles}
+          <Scatter
+            name='childMeasurement'
+            data={this.props.measurementsArray}
+            stroke='red'
+            shape={
+              <CustomDataPoint fill={this.props.measurementDataPointColour} />
+            }
+            line={{
+              stroke: this.props.measurementDataPointColour
+            }}
+          />
           <ZAxis
             range={[15, 15]}
             dataKey='label'
@@ -245,33 +255,92 @@ class RCPCHChartComponent extends Component {
           />
           <CartesianGrid strokeDasharray='3 3' />
           <Brush dataKey='y' height={30} width={100} stroke='#8884d8' />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip
+            content={<CustomTooltip />}
+            yAxisLabel={this.props.yAxisLabel}
+          />
         </ScatterChart>
+        {/* </div> */}
       </div>
     )
   }
 }
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomDataPoint = (props) => {
+  const { cx, cy, fill } = props
+  return (
+    <g>
+      {props.label === 'chronological_age' ? (
+        <svg>
+          <circle cx={cx} cy={cy} r={2.5} fill={fill} />
+        </svg>
+      ) : (
+        <svg>
+          <line
+            x1={cx - 2.5}
+            y1={cy - 2.5}
+            x2={cx + 2.5}
+            y2={cy + 2.5}
+            stroke='red'
+            strokeWidth='2'
+          />
+          <line
+            x1={cx + 2.5}
+            y1={cy - 2.5}
+            x2={cx - 2.5}
+            y2={cy + 2.5}
+            stroke={fill}
+            strokeWidth='2'
+          />
+        </svg>
+      )}
+    </g>
+  )
+}
 
+const CustomTooltip = ({ active, payload }) => {
   const th = 'th'
   const nd = 'nd'
   const st = 'st'
   let suffix = th
 
   if (active) {
-    if (payload[2].value === 2) {
-      suffix = nd
+    if (payload[2] !== undefined) {
+      const { value } = payload[2]
+
+      if (payload[2].payload.centile_band !== undefined) {
+        return (
+          <div className={styles.customTooltip}>
+            {payload[1].value} {payload[1].unit}
+            {payload[2].payload.label === 'chronological_age' ? (
+              <p>Chronological age: {payload[2].payload.x} y</p>
+            ) : (
+              <p>Corrected age: {payload[2].payload.x} y</p>
+            )}
+            {payload[2].payload.centile_band}
+          </div>
+        )
+      }
+
+      if (value === 2) {
+        suffix = nd
+      }
+      if (value === 91) {
+        suffix = st
+      }
+      return (
+        <div className={styles.customTooltip}>
+          {value}
+          <sup>{suffix}</sup> centile
+        </div>
+      )
+    } else {
+      return (
+        <div className={styles.customTooltip}>
+          {payload[1].value} {payload[1].unit}
+        </div>
+      )
     }
-    if (payload[2].value === 91) {
-      suffix = st
-    }
-    return (
-      <div className={styles.customTooltip}>
-        {payload[2].value}
-        <sup>{suffix}</sup> centile
-      </div>
-    )
   } else {
     return null
   }
