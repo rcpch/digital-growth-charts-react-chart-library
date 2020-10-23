@@ -1,4 +1,4 @@
-# digital-growth-charts-react-chart-component
+# RCPCHChartComponent
 
 > RCPCH Digital Growth Charts rendered as a react component
 
@@ -21,7 +21,7 @@ npm install --save digital-growth-charts-react-chart-component
 ```jsx
 import React, { Component } from 'react'
 
-import MyComponent from 'digital-growth-charts-react-chart-component'
+import RCPCHChartComponent from 'digital-growth-charts-react-chart-component'
 import 'digital-growth-charts-react-chart-component/dist/index.css'
 
 class MyGrowthChartApp extends Component {

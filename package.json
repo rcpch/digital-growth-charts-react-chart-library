@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "RCPCH Digital Growth Charts rendered as a react component",
   "author": "eatyourpeas",
+  "scope": "@rcpch",
   "license": "GNU Affero Public Licence",
   "repository": "eatyourpeas/digital-growth-charts-react-chart-component",
   "main": "dist/index.js",
