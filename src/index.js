@@ -91,14 +91,15 @@ class RCPCHChartComponent extends Component {
         this.state = {
           centiles: data.centile_data.bmi,
           xAxisLabel: 'Decimal Age (yrs)',
-          yAxisLabel: 'BMI (kg/m2)',
+          yAxisLabel: 'BMI (kg/m²)',
+          yAxisUnits: 'kg/m²',
           chartTitle: title,
           minAge: minAge,
           maxAge: maxAge
         }
         break
       case 'ofc':
-        title += 'Head Circumference Chart'
+        title += ' - Head Circumference Chart'
         this.state = {
           centiles: data.centile_data.ofc,
           xAxisLabel: 'Decimal Age (yrs)',
