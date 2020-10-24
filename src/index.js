@@ -16,15 +16,40 @@ import femaleData from './femaleChartData'
 /*
   Should receive data points in this format from API
   {'child_data': 
-    {'bmi_sds': [{'x': 2.5872689938398357, 'y': -6.324286089179686}, {'x': 2.5872689938398357, 'y': -6.324286089179686}], 
-    'bmis': [{'x': 2.5872689938398357, 'y': 9.722222222222223}, {'x': 2.5872689938398357, 'y': 9.722222222222223}], 
-    'height_sds': [{'x': 2.5872689938398357, 'y': 7.965898960985831}, {'x': 2.5872689938398357, 'y': 7.965898960985831}], 
-    'heights': [{'x': 2.5872689938398357, 'y': 120.0}, {'x': 2.5872689938398357, 'y': 120.0}], 
-    'ofc_sds': [{'x': 2.5872689938398357, 'y': 2.809894553629454}, {'x': 2.5872689938398357, 'y': 2.809894553629454}], 
-    'ofcs': [{'x': 2.5872689938398357, 'y': 52.0}, {'x': 2.5872689938398357, 'y': 52.0}], 
-    'weight_sds': [{'x': 2.5872689938398357, 'y': 0.6336087835772052}, {'x': 2.5872689938398357, 'y': 0.6336087835772052}], 
-    'weights': [{'x': 2.5872689938398357, 'y': 14.0}, {'x': 2.5872689938398357, 'y': 14.0}]}, 
+    {'bmi_sds': [...], 
+    'bmis': [...], 
+    'height_sds': [...], 
+    'heights': [...], 
+    'ofc_sds': [...], 
+    'ofcs': [...], 
+    'weight_sds': [...], 
+    'weights': [...]}, 
     'sex': 'female'}
+
+
+  the objects within the arrays are 2 object arrays - one for chronological and one for corrected age
+    [
+      {
+        "calendar_age": null,
+        "centile_band": "This height measurement is above the normal range.",
+        "centile_value": 100,
+        "corrected_gestation_days": null,
+        "corrected_gestation_weeks": null,
+        "label": "corrected_age",
+        "x": 3.7180013689253935,
+        "y": 125
+      },
+      {
+        "calendar_age": "3 years, 8 months, 2 weeks and 6 days",
+        "centile_band": "This height measurement is above the normal range.",
+        "centile_value": 100,
+        "corrected_gestation_days": null,
+        "corrected_gestation_weeks": null,
+        "label": "chronological_age",
+        "x": 3.7180013689253935,
+        "y": 125
+      }
+    ]
 
     These are passed from the client app to the chart library as measurementsArray and measurementsSDSArray props.
   
@@ -33,7 +58,6 @@ import femaleData from './femaleChartData'
     each measurement and each sds has 2 decimal ages: one corrected and one chronological
     each array of values should be plotted as a series so they can be joined by a line
 
-    TODO - API needs also to return centile advice string for measurement
 */
 
 class RCPCHChartComponent extends Component {
@@ -143,17 +167,25 @@ class RCPCHChartComponent extends Component {
     }
 
     const chronologicalAgeFormatter = (item) => {
+      if (item > 2 && item % 0.5 !== 0) {
+        // return empty ticks for anything other than 6 monthly intervals above the age of 2 years
+        return ''
+      }
       let returnString = item
       if (item >= 2 && item % 1 === 0.5) {
+        // convert decimal years to string with 6mths for half years over the age of 2y
         returnString = Math.floor(item) + 'y 6 mths'
       }
-      if (item < 2) {
+      if (item < 2 && item % 12 === 0) {
+        // return only if decimal age below 2 y corresponds to an exact number of months
         returnString = item * 12 + ' months'
       }
-      if (item < 0.5) {
+      if (item < 0.5 && (item * 365.25) % 7 === 0) {
+        // return only if decimal age below 6 months corresponds to an exact number of weeks
         returnString = (item * 365.25) / 7 + ' weeks'
       }
       if (item <= 0) {
+        // return any babies below 40 weeks in weeks of gestation
         const weeks = Math.floor((280 - item * 365.25) / 7)
         const remainder = ((280 - item * 365.25) / 7 - weeks) * 7
         returnString = weeks + '+' + remainder + ' weeks'
@@ -194,11 +226,6 @@ class RCPCHChartComponent extends Component {
       }
     })
 
-    const intervalFormatter = (item) => {
-      console.log(item)
-      return 1
-    }
-
     return (
       <div className={styles.chartContainer}>
         <div className={styles.chartTitle}>
@@ -222,7 +249,7 @@ class RCPCHChartComponent extends Component {
             tickFormatter={chronologicalAgeFormatter}
             animationDuration={300}
             domain={['auto', 'auto']}
-            interval={intervalFormatter}
+            interval={0}
           />
           <YAxis
             dataKey='y'
@@ -298,6 +325,38 @@ const CustomDataPoint = (props) => {
     </g>
   )
 }
+
+// const CustomDataPoint = (props) => {
+//   const { cx, cy, fill } = props
+//   return (
+//     <g>
+//       {props.label === 'chronological_age' ? (
+//         <svg>
+//           <circle cx={cx} cy={cy} r={2.5} fill={fill} />
+//         </svg>
+//       ) : (
+//         <svg>
+//           <line
+//             x1={cx - 2.5}
+//             y1={cy - 2.5}
+//             x2={cx + 2.5}
+//             y2={cy + 2.5}
+//             stroke='red'
+//             strokeWidth='2'
+//           />
+//           <line
+//             x1={cx + 2.5}
+//             y1={cy - 2.5}
+//             x2={cx - 2.5}
+//             y2={cy + 2.5}
+//             stroke={fill}
+//             strokeWidth='2'
+//           />
+//         </svg>
+//       )}
+//     </g>
+//   )
+// }
 
 const CustomTooltip = ({ active, payload }) => {
   const th = 'th'
