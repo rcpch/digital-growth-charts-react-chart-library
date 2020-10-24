@@ -73,15 +73,23 @@ class RCPCHChartComponent extends Component {
     }
 
     const maxAge = Math.max.apply(
+      // returns the lowest age in the pair
       Math,
       this.props.measurementsArray.map(function (o) {
-        return o.x
+        return o[0].x
       })
     )
     const minAge = Math.min.apply(
+      // returns the highest age in the pair
       Math,
       this.props.measurementsArray.map(function (o) {
-        return o.x
+        // pairs where chronological and corrected age are the same have
+        // had the corrected age removed
+        if (o.length > 1) {
+          return o[1].x
+        } else {
+          return o[0].x
+        }
       })
     )
 
@@ -153,6 +161,7 @@ class RCPCHChartComponent extends Component {
     const { centiles } = this.state
     const centilesMap = []
     for (let j = 0; j < 9; j++) {
+      // stores the centile data for the age bracket of child in an array centilesMap
       if (this.state.minAge < 0) {
         centilesMap.push({ index: j, reference: centiles[j].uk90_preterm_data })
       }
@@ -194,6 +203,8 @@ class RCPCHChartComponent extends Component {
     }
 
     const allCentiles = centilesMap.map((centileIndex, index) => {
+      // creates a scatter series for each centile family selected, based on the child's age,
+      // stored in the centilesMap array. Lines are alternate dashed and continuous lines
       if (centileIndex.index % 2 === 0) {
         return (
           <Scatter
@@ -225,6 +236,40 @@ class RCPCHChartComponent extends Component {
         )
       }
     })
+
+    const allMeasurements = this.props.measurementsArray.map(
+      (measurementPair, index) => {
+        // iterates through each supplied child measurement and returns a scatter series for each data pair
+        // One value for chronological age, one for corrected age.
+        // If there is no corrected age, only a dot is rendered, otherwise a cross is returned
+        //  for the corrected age, connected by a line to the chronological age value rendered as a dot.
+
+        if (
+          measurementPair.length > 1 &&
+          measurementPair[0].x === measurementPair[1].x
+        ) {
+          // no correction for gestational age has been made
+          // remove the first value of the pair (corrected age)
+          // to prevent plotting a cross ontop of a dot
+          measurementPair.splice(0, 1)
+        }
+
+        return (
+          <Scatter
+            key={'measurement: ' + index}
+            name='childMeasurement'
+            data={measurementPair}
+            stroke='red'
+            shape={
+              <CustomDataPoint fill={this.props.measurementDataPointColour} />
+            }
+            line={{
+              stroke: this.props.measurementDataPointColour
+            }}
+          />
+        )
+      }
+    )
 
     return (
       <div className={styles.chartContainer}>
@@ -264,17 +309,7 @@ class RCPCHChartComponent extends Component {
             animationDuration={300}
           />
           {allCentiles}
-          <Scatter
-            name='childMeasurement'
-            data={this.props.measurementsArray}
-            stroke='red'
-            shape={
-              <CustomDataPoint fill={this.props.measurementDataPointColour} />
-            }
-            line={{
-              stroke: this.props.measurementDataPointColour
-            }}
-          />
+          {allMeasurements}
           <ZAxis
             range={[15, 15]}
             dataKey='label'
@@ -295,6 +330,8 @@ class RCPCHChartComponent extends Component {
 }
 
 const CustomDataPoint = (props) => {
+  // these are the custom data points rendered as SVG
+  // The first jsx is a cross for chronological age, the second is a circle
   const { cx, cy, fill } = props
   return (
     <g>
@@ -326,57 +363,138 @@ const CustomDataPoint = (props) => {
   )
 }
 
-// const CustomDataPoint = (props) => {
-//   const { cx, cy, fill } = props
-//   return (
-//     <g>
-//       {props.label === 'chronological_age' ? (
-//         <svg>
-//           <circle cx={cx} cy={cy} r={2.5} fill={fill} />
-//         </svg>
-//       ) : (
-//         <svg>
-//           <line
-//             x1={cx - 2.5}
-//             y1={cy - 2.5}
-//             x2={cx + 2.5}
-//             y2={cy + 2.5}
-//             stroke='red'
-//             strokeWidth='2'
-//           />
-//           <line
-//             x1={cx + 2.5}
-//             y1={cy - 2.5}
-//             x2={cx - 2.5}
-//             y2={cy + 2.5}
-//             stroke={fill}
-//             strokeWidth='2'
-//           />
-//         </svg>
-//       )}
-//     </g>
-//   )
-// }
-
 const CustomTooltip = ({ active, payload }) => {
+  // this is the tooltip method triggered on mouseOver. The active flag is true if
+  // a centile or a child measurement data point has been hit.
+
+  // these are the suffixes to append to the centile line values in the tooltip text
   const th = 'th'
   const nd = 'nd'
   const st = 'st'
   let suffix = th
+
+  /*
+    This is an example payload, triggered by the onMouseOver event crossing a child
+    data point or a centile data point - this relates to the active flag.
+    The first example array is on mouseover of the 99.6th centile
+
+      [
+        {
+          "name": "Decimal Age",
+          "unit": "",
+          "value": 3.833333333,
+          "payload": {
+            "label": 99.6,
+            "x": 3.833333333,
+            "y": 113.17839846133332
+          },
+          "dataKey": "x"
+        },
+        {
+          "name": "height",
+          "unit": " cm",
+          "value": 113.17839846133332,
+          "payload": {
+            "label": 99.6,
+            "x": 3.833333333,
+            "y": 113.17839846133332
+          },
+          "dataKey": "y"
+        },
+        {
+          "name": "Centile",
+          "unit": "centile",
+          "value": 99.6,
+          "payload": {
+            "label": 99.6,
+            "x": 3.833333333,
+            "y": 113.17839846133332
+          },
+          "dataKey": "label"
+        }
+      ]
+
+      This example array is of a child measurement
+
+      [
+        {
+          "name": "Decimal Age",
+          "unit": "",
+          "value": 3.7180013689253935,
+          "payload": {
+            "calendar_age": "3 years, 8 months, 2 weeks and 6 days",
+            "centile_band": "This height measurement is above the normal range.",
+            "centile_value": 100,
+            "corrected_gestation_days": null,
+            "corrected_gestation_weeks": null,
+            "label": "chronological_age",
+            "x": 3.7180013689253935,
+            "y": 125
+          },
+          "dataKey": "x"
+        },
+        {
+          "name": "height",
+          "unit": " cm",
+          "value": 125,
+          "payload": {
+            "calendar_age": "3 years, 8 months, 2 weeks and 6 days",
+            "centile_band": "This height measurement is above the normal range.",
+            "centile_value": 100,
+            "corrected_gestation_days": null,
+            "corrected_gestation_weeks": null,
+            "label": "chronological_age",
+            "x": 3.7180013689253935,
+            "y": 125
+          },
+          "dataKey": "y"
+        },
+        {
+          "name": "Centile",
+          "unit": "centile",
+          "value": "chronological_age",
+          "payload": {
+            "calendar_age": "3 years, 8 months, 2 weeks and 6 days",
+            "centile_band": "This height measurement is above the normal range.",
+            "centile_value": 100,
+            "corrected_gestation_days": null,
+            "corrected_gestation_weeks": null,
+            "label": "chronological_age",
+            "x": 3.7180013689253935,
+            "y": 125
+          },
+          "dataKey": "label"
+        }
+      ]
+  */
 
   if (active) {
     if (payload[2] !== undefined) {
       const { value } = payload[2]
 
       if (payload[2].payload.centile_band !== undefined) {
+        // this is a child measurement
+        let label = ''
+        if (payload[2].payload.label === 'chronological_age') {
+          label = <p>Chronological age: {payload[2].payload.calendar_age}</p>
+        }
+        if (payload[2].payload.label === 'corrected_age') {
+          label = <p>Corrected age: {payload[2].payload.calendar_age}</p>
+        }
+        if (payload[2].payload.corrected_gestation_weeks !== null) {
+          label = (
+            <p>
+              Corrected gestational age:{' '}
+              {payload[2].payload.corrected_gestation_weeks}
+              <sup>+{payload[2].payload.corrected_gestation_days}</sup> weeks
+            </p>
+          )
+        }
+
         return (
           <div className={styles.customTooltip}>
             {payload[1].value} {payload[1].unit}
-            {payload[2].payload.label === 'chronological_age' ? (
-              <p>Chronological age: {payload[2].payload.x} y</p>
-            ) : (
-              <p>Corrected age: {payload[2].payload.x} y</p>
-            )}
+            {label}
             {payload[2].payload.centile_band}
           </div>
         )
@@ -389,6 +507,7 @@ const CustomTooltip = ({ active, payload }) => {
         suffix = st
       }
       return (
+        // this is the centile JSX
         <div className={styles.customTooltip}>
           {value}
           <sup>{suffix}</sup> centile
@@ -397,7 +516,7 @@ const CustomTooltip = ({ active, payload }) => {
     } else {
       return (
         <div className={styles.customTooltip}>
-          {payload[1].value} {payload[1].unit}
+          {payload[2].value} {payload[2].unit}
         </div>
       )
     }

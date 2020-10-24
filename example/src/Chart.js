@@ -135,6 +135,39 @@ const payload = [
         "lay_decimal_age_comment": "At 40+0, your child is considered to have been born at term. No age adjustment is necessary.",
         "observation_date": "Fri, 23 Oct 2020 00:00:00 GMT"
       }
+    }, //--- here
+    {
+      "birth_data": {
+        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
+        "estimated_date_delivery": null,
+        "estimated_date_delivery_string": null,
+        "gestation_days": 0,
+        "gestation_weeks": 40,
+        "sex": "male"
+      },
+      "child_observation_value": {
+        "measurement_method": "height",
+        "measurement_value": 105.0
+      },
+      "measurement_calculated_values": {
+        "centile": 94,
+        "centile_band": "This height measurement is between the 91st and 98th centiles.",
+        "measurement_method": "height",
+        "sds": 1.596758755566836
+      },
+      "measurement_dates": {
+        "chronological_calendar_age": "3 years, 4 months, 1 week and 2 days",
+        "chronological_decimal_age": 3.353867214236824,
+        "clinician_decimal_age_comment": "Born Term. No correction necessary.",
+        "corrected_calendar_age": null,
+        "corrected_decimal_age": 3.353867214236824,
+        "corrected_gestational_age": {
+          "corrected_gestation_days": null,
+          "corrected_gestation_weeks": null
+        },
+        "lay_decimal_age_comment": "At 40+0, your child is considered to have been born at term. No age adjustment is necessary.",
+        "observation_date": "Fri, 12 Jun 2020 00:00:00 GMT"
+      }
     }
   ]
 
