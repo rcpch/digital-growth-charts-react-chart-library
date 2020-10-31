@@ -51,4 +51,4 @@ class MyGrowthChartApp extends Component {
 
 ## License
 
-GNU Affero Public Licence © [RCPCH](https://github.com/rcpch)
+MIT © [RCPCH](https://github.com/rcpch)
