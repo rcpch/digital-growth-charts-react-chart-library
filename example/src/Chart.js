@@ -171,6 +171,75 @@ const payload = [
     }
   ]
 
+  const pretermPayload = [
+    {
+      "birth_data": {
+        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
+        "estimated_date_delivery": "Tue, 16 May 2017 00:00:00 GMT",
+        "estimated_date_delivery_string": "Tue 16 May, 2017",
+        "gestation_days": 3,
+        "gestation_weeks": 25,
+        "sex": "male"
+      },
+      "child_observation_value": {
+        "measurement_method": "height",
+        "measurement_value": 58.0
+      },
+      "measurement_calculated_values": {
+        "centile": 100.0,
+        "centile_band": "This height measurement is well above the normal range. Please review its accuracy.",
+        "measurement_method": "height",
+        "sds": 7.323474248037532
+      },
+      "measurement_dates": {
+        "chronological_calendar_age": "1 week and 2 days",
+        "chronological_decimal_age": 0.024640657084188913,
+        "clinician_decimal_age_comment": "Correction for gestational age has been made. This occurs until two years of age.",
+        "corrected_calendar_age": "",
+        "corrected_decimal_age": -0.2546201232032854,
+        "corrected_gestational_age": {
+          "corrected_gestation_days": 5,
+          "corrected_gestation_weeks": 26
+        },
+        "lay_decimal_age_comment": "Because your child was born at 25+3, an adjustment had been made to take into account their prematurity. This occurs up to two years of age.",
+        "observation_date": "Sun, 12 Feb 2017 00:00:00 GMT"
+      }
+    },
+    {
+      "birth_data": {
+        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
+        "estimated_date_delivery": "Tue, 16 May 2017 00:00:00 GMT",
+        "estimated_date_delivery_string": "Tue 16 May, 2017",
+        "gestation_days": 3,
+        "gestation_weeks": 25,
+        "sex": "male"
+      },
+      "child_observation_value": {
+        "measurement_method": "height",
+        "measurement_value": 62.0
+      },
+      "measurement_calculated_values": {
+        "centile": 100.0,
+        "centile_band": "This height measurement is well above the normal range. Please review its accuracy.",
+        "measurement_method": "height",
+        "sds": 7.5298873654584355
+      },
+      "measurement_dates": {
+        "chronological_calendar_age": "1 month, 2 weeks and 1 day",
+        "chronological_decimal_age": 0.11772758384668036,
+        "clinician_decimal_age_comment": "Correction for gestational age has been made. This occurs until two years of age.",
+        "corrected_calendar_age": "",
+        "corrected_decimal_age": -0.16153319644079397,
+        "corrected_gestational_age": {
+          "corrected_gestation_days": 4,
+          "corrected_gestation_weeks": 31
+        },
+        "lay_decimal_age_comment": "Because your child was born at 25+3, an adjustment had been made to take into account their prematurity. This occurs up to two years of age.",
+        "observation_date": "Sat, 18 Mar 2017 00:00:00 GMT"
+      }
+    }
+  ]
+
 class ChartData extends Component {
 
     constructor(props){
@@ -201,7 +270,7 @@ class ChartData extends Component {
     async fetchCentileData(childData) {
         
         let formData = {
-          results: payload
+          results: pretermPayload
         };
     
         const response = await axios({
@@ -325,6 +394,11 @@ class ChartData extends Component {
                                 measurementDataPointColour = 'red'
                             />
                     )
+                }
+                else {
+                  return (
+                    <h1>Loading...</h1>
+                  )
                 }
             })}
             </div>)

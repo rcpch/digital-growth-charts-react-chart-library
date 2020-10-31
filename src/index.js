@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { Component } from 'react'
 import styles from './styles.module.css'
 import {
@@ -5,8 +6,6 @@ import {
   YAxis,
   ZAxis,
   Tooltip,
-  CartesianGrid,
-  Brush,
   ScatterChart,
   Scatter
 } from 'recharts'
@@ -60,6 +59,29 @@ import femaleData from './femaleChartData'
 
 */
 
+/*
+    The centiles are rendered from the data files bundled into the package (femaleChartData.js and maleChartData.js).
+    They are hardcoded and therefore can only be used if the intention is to use UK-WHO references
+
+    The centile data are stored in the centiles object in state (the correct one for sex is chosen based on the 
+    sex prop passed in from the client). The data structure is:
+    is an array centiles[0...9]. Each object in the array follows the structure:
+    {
+      centile: 0.4,
+      sds: -2.66
+      uk90_preterm_data: [{
+        label: 0.4,
+        x: ... // this is the age
+        y: ... // this is the measurement
+      }],
+      who_infant_data:[...],
+      who_child_data: [...],
+      uk90_child_data: [...]
+    }
+    Each centile makes up an object in the array (9 centiles = 9 centile objects)
+    Each centile object is made up for 4 arrays of plottable data, one for each reference
+*/
+
 class RCPCHChartComponent extends Component {
   constructor(props) {
     super(props)
@@ -72,26 +94,19 @@ class RCPCHChartComponent extends Component {
       data = femaleData
     }
 
-    const maxAge = Math.max.apply(
-      // returns the lowest age in the pair
-      Math,
-      this.props.measurementsArray.map(function (o) {
-        return o[0].x
-      })
-    )
-    const minAge = Math.min.apply(
-      // returns the highest age in the pair
-      Math,
-      this.props.measurementsArray.map(function (o) {
-        // pairs where chronological and corrected age are the same have
-        // had the corrected age removed
-        if (o.length > 1) {
-          return o[1].x
-        } else {
-          return o[0].x
-        }
-      })
-    )
+    const minAge = this.props.measurementsArray[0][0].x
+    let maxAge = 0.0
+    const finalItemInMeasurementsArray = this.props.measurementsArray[
+      this.props.measurementsArray.length - 1
+    ]
+    if (finalItemInMeasurementsArray.length > 1) {
+      // any ages where chronological and corrected are the same, will have the corrected age removed
+      // and therefore array of pairs will only have a single measurement in it to plot.
+      // This method assumes measurements are provide in order - this could be a vulnerability that needs testing
+      maxAge = finalItemInMeasurementsArray[1].x
+    } else {
+      maxAge = finalItemInMeasurementsArray[0].x
+    }
 
     switch (this.props.measurementMethod) {
       case 'height':
@@ -155,49 +170,82 @@ class RCPCHChartComponent extends Component {
         }
         break
     }
+
   }
 
   render() {
     const { centiles } = this.state
+    // let referenceUpperAgeThreshold = 0.038329911
+    // let referenceLowerAgeThreshold = -0.038329911
     const centilesMap = []
     for (let j = 0; j < 9; j++) {
       // stores the centile data for the age bracket of child in an array centilesMap
-      if (this.state.minAge < 0) {
+      if (this.state.minAge < 0.038329911) {
+        // 42 weeks gestation == 0.038329911: use UK90 preterm data
         centilesMap.push({ index: j, reference: centiles[j].uk90_preterm_data })
       }
-      if (this.state.minAge < 2) {
+      if (
+        this.state.minAge >= 0.038329911 ||
+        this.state.maxAge >= 0.038329911
+      ) {
+        // over 2 weeks but under 2 years - add WHO infant data
         centilesMap.push({ index: j, reference: centiles[j].who_infant_data })
+        // referenceUpperAgeThreshold = 2
       }
-      if (this.state.minAge < 4) {
+      if (this.state.minAge >= 2 || this.state.maxAge >= 2) {
+        // over 2 y and under 4 years - use WHO child data
         centilesMap.push({ index: j, reference: centiles[j].who_child_data })
-      } else {
+        // referenceUpperAgeThreshold = 4
+      }
+      if (this.state.minAge >= 4 || this.state.maxAge >= 4) {
+        // for everyone else, use UK90 child data
         centilesMap.push({ index: j, reference: centiles[j].uk90_child_data })
+        // referenceUpperAgeThreshold = 20
       }
     }
 
     const chronologicalAgeFormatter = (item) => {
+      // this renders the labels on the x axis
+      // This is complicated because preterm infants need gestational weeks plotting
+      // where as older children need only 6 monthly intervals as a guide.
+
       if (item > 2 && item % 0.5 !== 0) {
         // return empty ticks for anything other than 6 monthly intervals above the age of 2 years
         return ''
       }
-      let returnString = item
+      let returnString = item + 'y'
       if (item >= 2 && item % 1 === 0.5) {
         // convert decimal years to string with 6mths for half years over the age of 2y
         returnString = Math.floor(item) + 'y 6 mths'
       }
-      if (item < 2 && item % 12 === 0) {
+      if (item < 2) {
         // return only if decimal age below 2 y corresponds to an exact number of months
-        returnString = item * 12 + ' months'
+        if (item * 12 === Math.floor(item * 12)) {
+          returnString = item * 12 + 'm'
+        } else {
+          return ''
+        }
       }
-      if (item < 0.5 && (item * 365.25) % 7 === 0) {
-        // return only if decimal age below 6 months corresponds to an exact number of weeks
-        returnString = (item * 365.25) / 7 + ' weeks'
+      if (item <= 0.5 && item >= 0.038329911) {
+        // return only if decimal age below 6 months but above 2 weeks
+        // return in weeks of age
+        const weeks = (item * 365.25) / 7
+        if (weeks % 1 < 0.1 || weeks % 1 > 0.9) {
+          // exact week
+          returnString = parseInt(weeks) + 'w'
+        } else {
+          return ''
+        }
       }
-      if (item <= 0) {
-        // return any babies below 40 weeks in weeks of gestation
-        const weeks = Math.floor((280 - item * 365.25) / 7)
-        const remainder = ((280 - item * 365.25) / 7 - weeks) * 7
-        returnString = weeks + '+' + remainder + ' weeks'
+      if (item <= 0.038329911) {
+        // return any babies below 42 weeks in weeks of gestation
+        const exactWeeks = (item * 365.25 + 280) / 7
+        if (exactWeeks % 1 < 0.1 || exactWeeks % 1 > 0.9) {
+          // the convertion from ref data back to weeks are not exact integers. Round to nearest if < 0.1
+          returnString = parseInt(exactWeeks)
+        } else {
+          returnString = ''
+        }
       }
       return returnString
     }
@@ -272,6 +320,7 @@ class RCPCHChartComponent extends Component {
     )
 
     return (
+      // Returns the chart with axes, centiles and child data, label data, grid and tooltip
       <div className={styles.chartContainer}>
         <div className={styles.chartTitle}>
           <h3>{this.state.chartTitle}</h3>
@@ -284,40 +333,43 @@ class RCPCHChartComponent extends Component {
           <XAxis
             scale='linear'
             type='number'
-            name='Decimal Age'
+            allowDuplicatedCategory={false}
+            name='Age'
             dataKey='x'
             allowDecimals={false}
             label={{
               value: this.state.xAxisLabel,
               position: 'bottom'
             }}
+            domain={[this.state.minAge , this.state.maxAge]}
             tickFormatter={chronologicalAgeFormatter}
             animationDuration={300}
-            domain={['auto', 'auto']}
             interval={0}
           />
           <YAxis
             dataKey='y'
             type='number'
+            scale='linear'
             name={this.props.measurementMethod}
-            unit={' ' + this.state.yAxisUnits}
+            unit={this.state.yAxisUnits}
             label={{
               value: this.state.yAxisLabel,
               angle: -90,
               position: 'left'
             }}
             animationDuration={300}
+            domain={['dataMin', 'dataMax']}
+            // tickFormatter={measurementValueFormatter}
           />
           {allCentiles}
           {allMeasurements}
           <ZAxis
-            range={[15, 15]}
+            range={[30, 30]}
             dataKey='label'
             unit='centile'
             name='Centile'
           />
-          <CartesianGrid strokeDasharray='3 3' />
-          <Brush dataKey='y' height={30} width={100} stroke='#8884d8' />
+          {/* <CartesianGrid strokeDasharray='3 3' /> */}
           <Tooltip
             content={<CustomTooltip />}
             yAxisLabel={this.props.yAxisLabel}
@@ -471,31 +523,36 @@ const CustomTooltip = ({ active, payload }) => {
   if (active) {
     if (payload[2] !== undefined) {
       const { value } = payload[2]
-
       if (payload[2].payload.centile_band !== undefined) {
         // this is a child measurement
         let label = ''
+        let band = ''
         if (payload[2].payload.label === 'chronological_age') {
           label = <p>Chronological age: {payload[2].payload.calendar_age}</p>
         }
         if (payload[2].payload.label === 'corrected_age') {
           label = <p>Corrected age: {payload[2].payload.calendar_age}</p>
-        }
-        if (payload[2].payload.corrected_gestation_weeks !== null) {
-          label = (
-            <p>
-              Corrected gestational age:{' '}
-              {payload[2].payload.corrected_gestation_weeks}
-              <sup>+{payload[2].payload.corrected_gestation_days}</sup> weeks
-            </p>
-          )
+          if (payload[2].payload.corrected_gestation_weeks !== null) {
+            label = (
+              <p>
+                Corrected gestational age:{' '}
+                {payload[2].payload.corrected_gestation_weeks}
+                <sup>+{payload[2].payload.corrected_gestation_days}</sup> weeks
+              </p>
+            )
+            band = (
+              <p>
+                {payload[2].payload.centile_band}
+              </p>
+            )
+          }
         }
 
         return (
           <div className={styles.customTooltip}>
             {payload[1].value} {payload[1].unit}
             {label}
-            {payload[2].payload.centile_band}
+            {band}
           </div>
         )
       }
