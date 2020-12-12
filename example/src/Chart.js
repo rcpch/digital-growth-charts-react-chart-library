@@ -15,7 +15,7 @@ const payload = [
       },
       "child_observation_value": {
         "measurement_method": "height",
-        "measurement_value": 125
+        "observation_value": 125
       },
       "measurement_calculated_values": {
         "centile": 100,
@@ -48,7 +48,7 @@ const payload = [
       },
       "child_observation_value": {
         "measurement_method": "weight",
-        "measurement_value": 14
+        "observation_value": 14
       },
       "measurement_calculated_values": {
         "centile": 16,
@@ -81,7 +81,7 @@ const payload = [
       },
       "child_observation_value": {
         "measurement_method": "bmi",
-        "measurement_value": 11.2
+        "observation_value": 11.2
       },
       "measurement_calculated_values": {
         "centile": 0,
@@ -114,7 +114,7 @@ const payload = [
       },
       "child_observation_value": {
         "measurement_method": "ofc",
-        "measurement_value": 54
+        "observation_value": 54
       },
       "measurement_calculated_values": {
         "centile": 99.7,
@@ -147,7 +147,7 @@ const payload = [
       },
       "child_observation_value": {
         "measurement_method": "height",
-        "measurement_value": 105.0
+        "observation_value": 105.0
       },
       "measurement_calculated_values": {
         "centile": 94,
@@ -183,7 +183,7 @@ const payload = [
       },
       "child_observation_value": {
         "measurement_method": "height",
-        "measurement_value": 58.0
+        "observation_value": 58.0
       },
       "measurement_calculated_values": {
         "centile": 100.0,
@@ -216,7 +216,7 @@ const payload = [
       },
       "child_observation_value": {
         "measurement_method": "height",
-        "measurement_value": 62.0
+        "observation_value": 62.0
       },
       "measurement_calculated_values": {
         "centile": 100.0,

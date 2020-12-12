@@ -7,10 +7,20 @@ import {
   ZAxis,
   Tooltip,
   ScatterChart,
-  Scatter
+  Scatter,
+  CartesianGrid
 } from 'recharts'
-import maleData from './maleChartData'
-import femaleData from './femaleChartData'
+
+import maleHeightData from './boys_height'
+import maleWeightData from './boys_weight'
+import maleOFCData from './boys_ofc'
+import maleBMIData from './boys_bmi'
+import femaleBMIData from './girls_bmi'
+import femaleOFCData from './girls_ofc'
+import femaleWeightData from './girls_weight'
+import femaleHeightData from './girls_height'
+
+
 
 /*
   Should receive data points in this format from API
@@ -86,14 +96,13 @@ class RCPCHChartComponent extends Component {
   constructor(props) {
     super(props)
     let title = ''
-    let data = maleData
     if (this.props.sex === 'male') {
       title = 'Boys'
     } else {
       title = 'Girls'
-      data = femaleData
     }
 
+    // This section works out the earliest and latest dates which are going to need to be plotted
     const minAge = this.props.measurementsArray[0][0].x
     let maxAge = 0.0
     const finalItemInMeasurementsArray = this.props.measurementsArray[
@@ -108,9 +117,16 @@ class RCPCHChartComponent extends Component {
       maxAge = finalItemInMeasurementsArray[0].x
     }
 
+    let data=[]
+
     switch (this.props.measurementMethod) {
       case 'height':
         title += ' - Length/Height Chart'
+        if (this.props.sex === 'male'){
+          data = maleHeightData
+        } else {
+          data = femaleHeightData
+        }
         this.state = {
           centiles: data.centile_data.height,
           xAxisLabel: 'Decimal Age (yrs)',
@@ -118,11 +134,17 @@ class RCPCHChartComponent extends Component {
           yAxisUnits: 'cm',
           chartTitle: title,
           minAge: minAge,
-          maxAge: maxAge
+          maxAge: maxAge,
+          centileCollection: []
         }
         break
       case 'weight':
         title += ' - Weight Chart'
+        if (this.props.sex === 'male'){
+          data = maleWeightData
+        } else {
+          data = femaleWeightData
+        }
         this.state = {
           centiles: data.centile_data.weight,
           xAxisLabel: 'Decimal Age (yrs)',
@@ -130,11 +152,17 @@ class RCPCHChartComponent extends Component {
           yAxisUnits: 'kg',
           chartTitle: title,
           minAge: minAge,
-          maxAge: maxAge
+          maxAge: maxAge,
+          centileCollection: []
         }
         break
       case 'bmi':
         title += ' - Body Mass Index Chart'
+        if (this.props.sex === 'male'){
+          data = maleBMIData
+        } else {
+          data = femaleBMIData
+        }
         this.state = {
           centiles: data.centile_data.bmi,
           xAxisLabel: 'Decimal Age (yrs)',
@@ -142,11 +170,17 @@ class RCPCHChartComponent extends Component {
           yAxisUnits: 'kg/m²',
           chartTitle: title,
           minAge: minAge,
-          maxAge: maxAge
+          maxAge: maxAge,
+          centileCollection: []
         }
         break
       case 'ofc':
         title += ' - Head Circumference Chart'
+        if (this.props.sex === 'male'){
+          data = maleOFCData
+        } else {
+          data = femaleOFCData
+        }
         this.state = {
           centiles: data.centile_data.ofc,
           xAxisLabel: 'Decimal Age (yrs)',
@@ -154,35 +188,47 @@ class RCPCHChartComponent extends Component {
           yAxisUnits: 'cm',
           chartTitle: title,
           minAge: minAge,
-          maxAge: maxAge
+          maxAge: maxAge,
+          centileCollection: []
         }
         break
       default:
-        this.state = {
-          centiles: data.centile_data.height,
-          sex: 'male',
-          xAxisLabel: 'Decimal Age (yrs)',
-          yAxisLabel: 'Length/Height (cm)',
-          yAxisUnits: 'cm',
-          chartTitle: "Boys' " + title,
-          minAge: minAge,
-          maxAge: maxAge
-        }
         break
     }
 
   }
 
   render() {
+
+    const weeksXAxis = (<XAxis
+      xAxisId='weeks'
+      axisLine
+      scale='linear'
+      type='number'
+      name='weeks'
+      dataKey='x'
+      tick={weeksTicks}
+      label={{
+        value: "Weeks",
+        position: 'bottom'
+      }}
+      interval={2}
+    />)
+        
+
     const { centiles } = this.state
     // let referenceUpperAgeThreshold = 0.038329911
     // let referenceLowerAgeThreshold = -0.038329911
     const centilesMap = []
+    const xAxes = []
+    // Creates an array of the centile line plots that are needed depending on the age 
+    // of the child.
     for (let j = 0; j < 9; j++) {
       // stores the centile data for the age bracket of child in an array centilesMap
       if (this.state.minAge < 0.038329911) {
         // 42 weeks gestation == 0.038329911: use UK90 preterm data
         centilesMap.push({ index: j, reference: centiles[j].uk90_preterm_data })
+       xAxes.push('UK90_preterm')
       }
       if (
         this.state.minAge >= 0.038329911 ||
@@ -191,11 +237,13 @@ class RCPCHChartComponent extends Component {
         // over 2 weeks but under 2 years - add WHO infant data
         centilesMap.push({ index: j, reference: centiles[j].who_infant_data })
         // referenceUpperAgeThreshold = 2
+        xAxes.push('uk_who_infants')
       }
       if (this.state.minAge >= 2 || this.state.maxAge >= 2) {
         // over 2 y and under 4 years - use WHO child data
         centilesMap.push({ index: j, reference: centiles[j].who_child_data })
         // referenceUpperAgeThreshold = 4
+        xAxes.push('uk_who_children')
       }
       if (this.state.minAge >= 4 || this.state.maxAge >= 4) {
         // for everyone else, use UK90 child data
@@ -204,60 +252,15 @@ class RCPCHChartComponent extends Component {
       }
     }
 
-    const chronologicalAgeFormatter = (item) => {
-      // this renders the labels on the x axis
-      // This is complicated because preterm infants need gestational weeks plotting
-      // where as older children need only 6 monthly intervals as a guide.
-
-      if (item > 2 && item % 0.5 !== 0) {
-        // return empty ticks for anything other than 6 monthly intervals above the age of 2 years
-        return ''
-      }
-      let returnString = item + 'y'
-      if (item >= 2 && item % 1 === 0.5) {
-        // convert decimal years to string with 6mths for half years over the age of 2y
-        returnString = Math.floor(item) + 'y 6 mths'
-      }
-      if (item < 2) {
-        // return only if decimal age below 2 y corresponds to an exact number of months
-        if (item * 12 === Math.floor(item * 12)) {
-          returnString = item * 12 + 'm'
-        } else {
-          return ''
-        }
-      }
-      if (item <= 0.5 && item >= 0.038329911) {
-        // return only if decimal age below 6 months but above 2 weeks
-        // return in weeks of age
-        const weeks = (item * 365.25) / 7
-        if (weeks % 1 < 0.1 || weeks % 1 > 0.9) {
-          // exact week
-          returnString = parseInt(weeks) + 'w'
-        } else {
-          return ''
-        }
-      }
-      if (item <= 0.038329911) {
-        // return any babies below 42 weeks in weeks of gestation
-        const exactWeeks = (item * 365.25 + 280) / 7
-        if (exactWeeks % 1 < 0.1 || exactWeeks % 1 > 0.9) {
-          // the convertion from ref data back to weeks are not exact integers. Round to nearest if < 0.1
-          returnString = parseInt(exactWeeks)
-        } else {
-          returnString = ''
-        }
-      }
-      return returnString
-    }
-
-    const allCentiles = centilesMap.map((centileIndex, index) => {
+    const allCentileScatters = centilesMap.map((centileIndex, index) => {
       // creates a scatter series for each centile family selected, based on the child's age,
       // stored in the centilesMap array. Lines are alternate dashed and continuous lines
+      
       if (centileIndex.index % 2 === 0) {
         return (
           <Scatter
             key={index}
-            nameKey={centileIndex.reference.label}
+            // nameKey='l'
             data={centileIndex.reference}
             dataKey='y'
             // type='monotone'
@@ -272,7 +275,7 @@ class RCPCHChartComponent extends Component {
       } else {
         return (
           <Scatter
-            nameKey={centileIndex.reference.label}
+            // nameKey='l'
             key={index}
             data={centileIndex.reference}
             dataKey='y'
@@ -285,7 +288,9 @@ class RCPCHChartComponent extends Component {
       }
     })
 
-    const allMeasurements = this.props.measurementsArray.map(
+    
+
+    const allMeasurementScatters = this.props.measurementsArray.map(
       (measurementPair, index) => {
         // iterates through each supplied child measurement and returns a scatter series for each data pair
         // One value for chronological age, one for corrected age.
@@ -330,20 +335,23 @@ class RCPCHChartComponent extends Component {
           height={this.props.height}
           margin={{ top: 20, right: 20, bottom: 50, left: 10 }}
         >
+          {allCentileScatters}
+          {allMeasurementScatters}
+          <CartesianGrid/>
           <XAxis
+            // xAxisId="months"
+            axisLine
+            tickLine={false}
             scale='linear'
             type='number'
-            allowDuplicatedCategory={false}
-            name='Age'
+            name='months'
             dataKey='x'
-            allowDecimals={false}
+            tick={MonthTicks}
             label={{
-              value: this.state.xAxisLabel,
-              position: 'bottom'
+              value: "Months",
+              position: 'insideBottom'
             }}
-            domain={[this.state.minAge , this.state.maxAge]}
-            tickFormatter={chronologicalAgeFormatter}
-            animationDuration={300}
+            // domain={[this.state.minAge , this.state.maxAge]}
             interval={0}
           />
           <YAxis
@@ -359,10 +367,7 @@ class RCPCHChartComponent extends Component {
             }}
             animationDuration={300}
             domain={['dataMin', 'dataMax']}
-            // tickFormatter={measurementValueFormatter}
           />
-          {allCentiles}
-          {allMeasurements}
           <ZAxis
             range={[30, 30]}
             dataKey='label'
@@ -370,15 +375,33 @@ class RCPCHChartComponent extends Component {
             name='Centile'
           />
           {/* <CartesianGrid strokeDasharray='3 3' /> */}
-          <Tooltip
+          {/* <Tooltip
             content={<CustomTooltip />}
             yAxisLabel={this.props.yAxisLabel}
-          />
+          /> */}
         </ScatterChart>
         {/* </div> */}
       </div>
     )
   }
+}
+
+const MonthTicks = (tickProps) => {
+  const { x, y, payload } = tickProps;
+  const { value, offset } = payload;
+  const pathX = Math.floor(x + offset * 2) + 0.5;
+  if ((value * 4)%1 === 0){
+    return (
+          <svg>
+            <path d={`M${pathX},${y-8}v${-12}`} stroke="black" />
+            <circle cx={x} cy={y-35} r={15} stroke="black" strokeWidth={1} fill="transparent"/>
+            <text x={x} y={y-30} textAnchor="middle" fontSize={11} fontStyle='normal' stroke="black" strokeWidth={0.5} dy={.1}>{value*12}</text>
+          </svg>
+    )
+  } else {
+    return null
+  }
+
 }
 
 const CustomDataPoint = (props) => {
@@ -413,6 +436,27 @@ const CustomDataPoint = (props) => {
       )}
     </g>
   )
+}
+
+const weeksTicks = (tick) => {
+
+  const {
+    x, y, stroke, payload,
+  } = tick;
+  
+  let returnString = ''
+    const exactWeeks = (payload.value * 365.25 + 280) / 7
+    if (exactWeeks % 1 < 0.1 || exactWeeks % 1 > 0.9) {
+      // the convertion from ref data back to weeks are not exact integers. Round to nearest if < 0.1
+      returnString = parseInt(exactWeeks)
+    } else {
+      returnString = ''
+    }
+  // }
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={0} y={0} dy={16} textAnchor="end" fill="#666" fontSize={8} transform="rotate(-35)">{returnString}</text>
+    </g>)
 }
 
 const CustomTooltip = ({ active, payload }) => {
