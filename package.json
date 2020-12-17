@@ -59,7 +59,7 @@
   ],
   "dependencies": {
     "core-js": "^3.6.5",
-    "recharts": "^2.0.0-beta.1"
+    "victory": "^35.4.3"
   },
   "bugs": {
     "url": "https://github.com/rcpch/digital-growth-charts-react-chart-library/issues"
