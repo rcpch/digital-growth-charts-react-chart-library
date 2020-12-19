@@ -253,14 +253,6 @@ class ChartData extends Component {
             childData: [],
             sex: 'male',
             sexColor: '',
-            heights: [],
-            height_SDS: [],
-            weights: [],
-            weight_SDS: [],
-            bmis: [],
-            bmi_SDS: [],
-            ofcs: [],
-            ofc_SDS: [],
             isLoading: true,
             selectedCharts: []
         }
@@ -270,7 +262,7 @@ class ChartData extends Component {
     async fetchCentileData(childData) {
         
         let formData = {
-          results: pretermPayload
+          results: payload
         };
     
         const response = await axios({
@@ -288,6 +280,7 @@ class ChartData extends Component {
     componentDidMount(){
         const results = this.fetchCentileData(this.state.childData);
         let selectedCharts = []
+        
         results.then(result => {
             
             if (result.child_data.heights.length > 0){
