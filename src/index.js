@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import styles from './styles.module.css'
-
-import turnerData from './chart_data/turners_chart_data'
-
-import { VictoryLine, VictoryChart, VictoryTooltip, VictoryVoronoiContainer, VictoryGroup, VictoryScatter} from 'victory'
+import TurnerChart from './components/turner-chart'
+import UKWHOChart from './components/uk-who-chart'
+import Trisomy21Chart from './components/trisomy21-chart'
 
 /*
   Should receive data points in this format from API
@@ -55,11 +55,11 @@ import { VictoryLine, VictoryChart, VictoryTooltip, VictoryVoronoiContainer, Vic
 */
 
 /*
-    The centiles are rendered from the data files bundled into the package (femaleChartData.js and maleChartData.js).
-    They are hardcoded and therefore can only be used if the intention is to use UK-WHO references
+    The centiles are rendered from the data files bundled into the package (ukwhoData.js, turnerData.js, trisomy21Data.js).
+    They are hardcoded and therefore can only be used if the intention is to use those references
 
     The centile data are stored in the centiles object in state (the correct one for sex is chosen based on the 
-    sex prop passed in from the client). The data structure is:
+    sex prop and reference prop passed in from the client). The data structure is:
     is an array centiles[0...9]. Each object in the array follows the structure:
     {
       centile: 0.4,
@@ -88,17 +88,38 @@ class RCPCHChartComponent extends Component {
       measurementsArray (this is an array of measurement objects received from the dGC API)
 
       optional props include:
-
+                                key={selectedChart}
+                                measurementMethod: ['height', 'weight', 'bmi', 'ofc' ]
+                                sex: ['male', 'female']
+                                centileColour; '#0d0c0a'
+                                width={700} 
+                                height={600}
+                                measurementsArray = {this.state.heights}
+                                measurementsSDSArray = {this.state.height_SDS}
+                                measurementDataPointColour = 'red'
+      growth data point color
+      line color
+      axis color
+      label font
+      label size
+      chart background color
 
     */
+  
 
   constructor(props) {
     super(props)
-    let title = ''
-    if (props.sex === 'male') {
-      title = 'Boys'
-    } else {
-      title = 'Girls'
+
+    RCPCHChartComponent.propTypes = {
+      measurementMethod: PropTypes.arrayOf(PropTypes.string).isRequired,
+      sex: PropTypes.oneOf(["male","female"]).isRequired,
+      measurementsArray: PropTypes.array.isRequired,
+      measurementsSDSArray: PropTypes.array.isRequired,
+      reference: PropTypes.oneOf(["uk-who", "turner", "trisomy21"]).isRequired,
+      width: PropTypes.number,
+      height: PropTypes.number,
+      measurementDataPointColour: PropTypes.string,
+      centileColour: PropTypes.string
     }
 
     const allMeasurementPairs = props.measurementsArray.map(
@@ -106,7 +127,7 @@ class RCPCHChartComponent extends Component {
         // iterates through each supplied child measurement and returns a scatter series for each data pair
         // One value for chronological age, one for corrected age.
         // If there is no corrected age, only a dot is rendered, otherwise a cross is returned
-        //  for the corrected age, connected by a line to the chronological age value rendered as a dot.
+        //  for the corrected age, connected by a line to theme chronological age value rendered as a dot.
         measurementPair[0].symbol = 'plus'
         measurementPair[0].size = 5
         
@@ -148,99 +169,59 @@ class RCPCHChartComponent extends Component {
   }
   
   render(){
-  
     return (
       
     <div className={styles.chartContainer} >
-      {/*  Returns the chart with axes, centiles and child data, label data, grid and tooltip */}
-      <VictoryChart
-        containerComponent={
-          <VictoryVoronoiContainer 
-            labels={({ datum }) => {
-              if (datum.l){
-               return `${stndth(datum.l)} centile`
-              } 
-              if (datum.centile_band) {
-                return datum.centile_band
-              }
-            }
-          }
-            labelComponent={<VictoryTooltip cornerRadius={0} constrainToVisibleArea/>}
-            voronoiBlacklist={["linkLine"]}
-            // voronoiBlacklist hides the duplicate tooltip text from the line joining the dots
-          /> 
-        }
-      >
-        {/* Render the centiles - loop through the data set, create a line for each centile */}  
-        <VictoryGroup>
-          {turnerData.turnerssyndrome.female.height.map((centile, index) =>{
-            if (index%2===0){
-              
-              return (
-                  <VictoryLine 
-                    key={centile.data[0].l + "-" + index}
-                    padding={{ top: 20, bottom: 60 }}
-                    data={centile.data}
-                    style={{ data: { stroke: "#c43a31", strokeWidth: 1, strokeLinecap: "round", strokeDasharray: '5 5' } }}
-                  />
-              )
-            } else {
-              return (
-                  <VictoryLine 
-                    key={centile.data[0].l + "-" + index}
-                    padding={{ top: 20, bottom: 60 }}
-                    data={centile.data}
-                    style={{ data: { stroke: "#c43a31", strokeWidth: 1, strokeLinecap: "round" } }}
-                  />
-              )
-            }
-          })}
-        </VictoryGroup>
-        {/* create a series for each datapoint */}
-        <VictoryGroup>
-          { this.state.allMeasurementPairs.map((measurementPair, index) => {
-            return (
-              <VictoryGroup
-                key={'measurement'+index}
-              >
-                <VictoryLine
-                  name="linkLine"
-                  style={{ data: { stroke: "red" } }}
-                  data={measurementPair}
-                />
-                <VictoryScatter
-                data={measurementPair}
-                dataComponent={<PlotPoint/>}
-              />
-              </VictoryGroup>
-            )
-          })}
-        </VictoryGroup>
-
-      </VictoryChart>
+      { this.props.reference === 'trisomy21' &&
+          <Trisomy21Chart
+            title={this.props.title}
+            subtitle={this.props.subtitle}
+            allMeasurementPairs={this.state.allMeasurementPairs}
+            centileColour={this.props.centileColour}
+            measurementMethod={this.props.measurementMethod}
+            sex={this.props.sex}
+            width={this.props.width} 
+            height={this.props.height}
+            measurementsArray = {this.state.heights}
+            measurementsSDSArray = {this.state.height_SDS}
+            measurementDataPointColour = {this.props.measurementDataPointColour}
+          />
+      }
+      { (this.props.reference === 'turner' && this.props.sex === "female" && this.props.measurementMethod === "height") &&
+           (<TurnerChart
+              title={this.props.title}
+              subtitle={this.props.subtitle}
+              allMeasurementPairs={this.state.allMeasurementPairs}
+              centileColour={this.props.centileColour}
+              measurementMethod={this.props.measurementMethod}
+              sex={this.props.sex}
+              width={this.props.width} 
+              height={this.props.height}
+              measurementsArray = {this.state.heights}
+              measurementsSDSArray = {this.state.height_SDS}
+              measurementDataPointColour = {this.props.measurementDataPointColour}
+          />) 
+      }
+      { this.props.reference === 'uk-who' &&
+          <UKWHOChart
+            title={this.props.title}
+            subtitle={this.props.subtitle}
+            allMeasurementPairs={this.state.allMeasurementPairs}
+            centileColour={this.props.centileColour}
+            measurementMethod={this.props.measurementMethod}
+            sex={this.props.sex}
+            width={this.props.width} 
+            height={this.props.height}
+            measurementsArray = {this.state.heights}
+            measurementsSDSArray = {this.state.height_SDS}
+            measurementDataPointColour = {this.props.measurementDataPointColour}
+          />
+      }
+      
+      
     </div>
   )}
 }
-
-function stndth(centile){
-  if(centile === 2 ){
-    return centile+'nd'
-  }
-  if(centile === 91){
-    return centile+'st'
-  }
-  else {
-    return centile+'th'
-  }
-}
-
-    
-
-
-
-    
-
-
 
 
   /*
@@ -339,28 +320,3 @@ function stndth(centile){
   */
 
 export default RCPCHChartComponent
-
-class PlotPoint extends React.Component {
-  render() {
-    const {x, y, datum} = this.props; // VictoryScatter supplies x, y and datum
-    const circle = (
-      <svg>
-        <circle cx={x} cy={y} r={2.5} stroke="red"/>
-      </svg>
-    )
-
-    const cross = (
-      <svg>
-        <line x1={x-2.5} y1={y-2.5} x2={x+2.5} y2={y+2.5} stroke="red" strokeWidth={2} />
-        <line x1={x+2.5} y1={y-2.5} x2={x-2.5} y2={y+2.5} stroke="red" strokeWidth={2} />
-      </svg>
-    )
-    
-    if (datum.age_type === "chronological_age"){
-      return circle
-    } else {
-      return cross
-    }
-    
-  }
-}

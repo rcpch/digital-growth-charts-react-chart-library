@@ -2,273 +2,33 @@ import React, { Component } from 'react'
 import axios from 'axios';
 import RCPCHChartComponent from 'digital-growth-charts-react-chart-component'
 import 'digital-growth-charts-react-chart-component/dist/index.css'
-
-const payload = [
-    {
-      "birth_data": {
-        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
-        "estimated_date_delivery": null,
-        "estimated_date_delivery_string": null,
-        "gestation_days": 0,
-        "gestation_weeks": 40,
-        "sex": "male"
-      },
-      "child_observation_value": {
-        "measurement_method": "height",
-        "observation_value": 125
-      },
-      "measurement_calculated_values": {
-        "centile": 100,
-        "centile_band": "This height measurement is above the normal range.",
-        "measurement_method": "height",
-        "sds": 5.804194100332083
-      },
-      "measurement_dates": {
-        "chronological_calendar_age": "3 years, 8 months, 2 weeks and 6 days",
-        "chronological_decimal_age": 3.7180013689253935,
-        "clinician_decimal_age_comment": "Born Term. No correction necessary.",
-        "corrected_calendar_age": null,
-        "corrected_decimal_age": 3.7180013689253935,
-        "corrected_gestational_age": {
-          "corrected_gestation_days": null,
-          "corrected_gestation_weeks": null
-        },
-        "lay_decimal_age_comment": "At 40+0, your child is considered to have been born at term. No age adjustment is necessary.",
-        "observation_date": "Fri, 23 Oct 2020 00:00:00 GMT"
-      }
-    },
-    {
-      "birth_data": {
-        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
-        "estimated_date_delivery": null,
-        "estimated_date_delivery_string": null,
-        "gestation_days": 0,
-        "gestation_weeks": 40,
-        "sex": "male"
-      },
-      "child_observation_value": {
-        "measurement_method": "weight",
-        "observation_value": 14
-      },
-      "measurement_calculated_values": {
-        "centile": 16,
-        "centile_band": "This weight measurement is between the 9th and 25th centiles.",
-        "measurement_method": "weight",
-        "sds": -0.9612466040715206
-      },
-      "measurement_dates": {
-        "chronological_calendar_age": "3 years, 8 months, 2 weeks and 6 days",
-        "chronological_decimal_age": 3.7180013689253935,
-        "clinician_decimal_age_comment": "Born Term. No correction necessary.",
-        "corrected_calendar_age": null,
-        "corrected_decimal_age": 3.7180013689253935,
-        "corrected_gestational_age": {
-          "corrected_gestation_days": null,
-          "corrected_gestation_weeks": null
-        },
-        "lay_decimal_age_comment": "At 40+0, your child is considered to have been born at term. No age adjustment is necessary.",
-        "observation_date": "Fri, 23 Oct 2020 00:00:00 GMT"
-      }
-    },
-    {
-      "birth_data": {
-        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
-        "estimated_date_delivery": null,
-        "estimated_date_delivery_string": null,
-        "gestation_days": 0,
-        "gestation_weeks": 40,
-        "sex": "male"
-      },
-      "child_observation_value": {
-        "measurement_method": "bmi",
-        "observation_value": 11.2
-      },
-      "measurement_calculated_values": {
-        "centile": 0,
-        "centile_band": "This body mass index measurement is on or near the 0.4th centile.",
-        "measurement_method": "bmi",
-        "sds": -4.108443657963778
-      },
-      "measurement_dates": {
-        "chronological_calendar_age": "3 years, 8 months, 2 weeks and 6 days",
-        "chronological_decimal_age": 3.7180013689253935,
-        "clinician_decimal_age_comment": "Born Term. No correction necessary.",
-        "corrected_calendar_age": null,
-        "corrected_decimal_age": 3.7180013689253935,
-        "corrected_gestational_age": {
-          "corrected_gestation_days": null,
-          "corrected_gestation_weeks": null
-        },
-        "lay_decimal_age_comment": "At 40+0, your child is considered to have been born at term. No age adjustment is necessary.",
-        "observation_date": "Fri, 23 Oct 2020 00:00:00 GMT"
-      }
-    },
-    {
-      "birth_data": {
-        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
-        "estimated_date_delivery": null,
-        "estimated_date_delivery_string": null,
-        "gestation_days": 0,
-        "gestation_weeks": 40,
-        "sex": "male"
-      },
-      "child_observation_value": {
-        "measurement_method": "ofc",
-        "observation_value": 54
-      },
-      "measurement_calculated_values": {
-        "centile": 99.7,
-        "centile_band": "This head circumference measurement is on or near the 99.6th centile.",
-        "measurement_method": "ofc",
-        "sds": 2.735252500663617
-      },
-      "measurement_dates": {
-        "chronological_calendar_age": "3 years, 8 months, 2 weeks and 6 days",
-        "chronological_decimal_age": 3.7180013689253935,
-        "clinician_decimal_age_comment": "Born Term. No correction necessary.",
-        "corrected_calendar_age": null,
-        "corrected_decimal_age": 3.7180013689253935,
-        "corrected_gestational_age": {
-          "corrected_gestation_days": null,
-          "corrected_gestation_weeks": null
-        },
-        "lay_decimal_age_comment": "At 40+0, your child is considered to have been born at term. No age adjustment is necessary.",
-        "observation_date": "Fri, 23 Oct 2020 00:00:00 GMT"
-      }
-    }, //--- here
-    {
-      "birth_data": {
-        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
-        "estimated_date_delivery": null,
-        "estimated_date_delivery_string": null,
-        "gestation_days": 0,
-        "gestation_weeks": 40,
-        "sex": "male"
-      },
-      "child_observation_value": {
-        "measurement_method": "height",
-        "observation_value": 105.0
-      },
-      "measurement_calculated_values": {
-        "centile": 94,
-        "centile_band": "This height measurement is between the 91st and 98th centiles.",
-        "measurement_method": "height",
-        "sds": 1.596758755566836
-      },
-      "measurement_dates": {
-        "chronological_calendar_age": "3 years, 4 months, 1 week and 2 days",
-        "chronological_decimal_age": 3.353867214236824,
-        "clinician_decimal_age_comment": "Born Term. No correction necessary.",
-        "corrected_calendar_age": null,
-        "corrected_decimal_age": 3.353867214236824,
-        "corrected_gestational_age": {
-          "corrected_gestation_days": null,
-          "corrected_gestation_weeks": null
-        },
-        "lay_decimal_age_comment": "At 40+0, your child is considered to have been born at term. No age adjustment is necessary.",
-        "observation_date": "Fri, 12 Jun 2020 00:00:00 GMT"
-      }
-    }
-  ]
-
-  const pretermPayload = [
-    {
-      "birth_data": {
-        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
-        "estimated_date_delivery": "Tue, 16 May 2017 00:00:00 GMT",
-        "estimated_date_delivery_string": "Tue 16 May, 2017",
-        "gestation_days": 3,
-        "gestation_weeks": 25,
-        "sex": "male"
-      },
-      "child_observation_value": {
-        "measurement_method": "height",
-        "observation_value": 58.0
-      },
-      "measurement_calculated_values": {
-        "centile": 100.0,
-        "centile_band": "This height measurement is well above the normal range. Please review its accuracy.",
-        "measurement_method": "height",
-        "sds": 7.323474248037532
-      },
-      "measurement_dates": {
-        "chronological_calendar_age": "1 week and 2 days",
-        "chronological_decimal_age": 0.024640657084188913,
-        "clinician_decimal_age_comment": "Correction for gestational age has been made. This occurs until two years of age.",
-        "corrected_calendar_age": "",
-        "corrected_decimal_age": -0.2546201232032854,
-        "corrected_gestational_age": {
-          "corrected_gestation_days": 5,
-          "corrected_gestation_weeks": 26
-        },
-        "lay_decimal_age_comment": "Because your child was born at 25+3, an adjustment had been made to take into account their prematurity. This occurs up to two years of age.",
-        "observation_date": "Sun, 12 Feb 2017 00:00:00 GMT"
-      }
-    },
-    {
-      "birth_data": {
-        "birth_date": "Fri, 03 Feb 2017 00:00:00 GMT",
-        "estimated_date_delivery": "Tue, 16 May 2017 00:00:00 GMT",
-        "estimated_date_delivery_string": "Tue 16 May, 2017",
-        "gestation_days": 3,
-        "gestation_weeks": 25,
-        "sex": "male"
-      },
-      "child_observation_value": {
-        "measurement_method": "height",
-        "observation_value": 62.0
-      },
-      "measurement_calculated_values": {
-        "centile": 100.0,
-        "centile_band": "This height measurement is well above the normal range. Please review its accuracy.",
-        "measurement_method": "height",
-        "sds": 7.5298873654584355
-      },
-      "measurement_dates": {
-        "chronological_calendar_age": "1 month, 2 weeks and 1 day",
-        "chronological_decimal_age": 0.11772758384668036,
-        "clinician_decimal_age_comment": "Correction for gestational age has been made. This occurs until two years of age.",
-        "corrected_calendar_age": "",
-        "corrected_decimal_age": -0.16153319644079397,
-        "corrected_gestational_age": {
-          "corrected_gestation_days": 4,
-          "corrected_gestation_weeks": 31
-        },
-        "lay_decimal_age_comment": "Because your child was born at 25+3, an adjustment had been made to take into account their prematurity. This occurs up to two years of age.",
-        "observation_date": "Sat, 18 Mar 2017 00:00:00 GMT"
-      }
-    }
-  ]
-
 class ChartData extends Component {
 
     constructor(props){
-        super(props);
-
+        super(props)
         // These are the colours from the orginal paper charts now deprecated
         // const girl = 'rgba(217, 49, 155, 1.0)';
         // const boy = 'rgba(0, 126, 198, 1.0)';
 
         this.state = {
-            childData: [],
-            sex: 'male',
-            sexColor: '',
-            isLoading: true,
-            selectedCharts: []
+            childData: [], // once measurements have returned from api in plottable form they are held in state
+            isLoading: true, // flag awaiting async fetchCentileData - could have spinner here
+            centiles_array: [], // an array to keep all of the cacluclated measurement
         }
         this.fetchCentileData.bind(this);
+
     }
 
     async fetchCentileData(childData) {
         
-        let formData = {
-          results: payload
-        };
-    
+      // child data here would be passed in from a form
+      // here we are using hardcoded example data - payload or preterm payload
+      // passed in from App.js
+
         const response = await axios({
         //   url: `${process.env.REACT_APP_GROWTH_API_BASEURL}/uk-who/plottable-child-data`,
           url: `http://localhost:5000/uk-who/plottable-child-data`,
-          data: formData,
+          data: childData,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -278,124 +38,94 @@ class ChartData extends Component {
     }
 
     componentDidMount(){
-        const results = this.fetchCentileData(this.state.childData);
-        let selectedCharts = []
+
+        const formData = {
+          results: this.props.measurementsArray // measurements passed in from the form
+        };
+
+        const results = this.fetchCentileData(formData); //async function to fetch plottable child data
         
-        results.then(result => {
+        results.then(result => { // stores child results in arrays based on measurement_methods in child results
             
-            if (result.child_data.heights.length > 0){
-                this.setState(
-                    {
-                        heights: result.child_data.heights,
-                        height_SDS: result.child_data.height_SDS
-                    }
-                )
-                selectedCharts.push('height')
-            }
-            if (result.child_data.weights.length > 0){
-                this.setState(
-                    {
-                        weights: result.child_data.heights,
-                        weight_SDS: result.child_data.height_SDS
-                    }
-                )
-                selectedCharts.push('weight')
-            }
-            if (result.child_data.ofcs.length > 0){
-                this.setState(
-                    {
-                        ofcs: result.child_data.ofcs,
-                        ofc_SDS: result.child_data.ofc_SDS
-                    }
-                )
-                selectedCharts.push('ofc')
-            }
-            if (result.child_data.bmis.length > 0){
-                this.setState(
-                    {
-                        bmis: result.child_data.bmis,
-                        bmi_SDS: result.child_data.bmi_SDS
-                    }
-                )
-                selectedCharts.push('bmi')
-            }
-            this.setState({isLoading: false})
-            this.setState({selectedCharts: selectedCharts})
+            
+
+            const measurement_method = result.child_data.measurement_method
+            const centile_data = result.child_data.centile_data
+            const sds_data = result.child_data.sds_data
+            this.setState({measurement_method: measurement_method})
+            this.setState({centile_data: centile_data})
+            this.setState({sds_data: sds_data})
+            this.setState({isLoading: false}) // data returned from API. set isLoading flag to false
         })
     }
 
     render(){
-        return (
-            <div>
-            {this.state.selectedCharts.map((selectedChart) => {
-                if (selectedChart === 'height'){
-                    return (
-                            <RCPCHChartComponent 
-                                key={selectedChart}
-                                measurementMethod='height' 
-                                sex={this.state.sex} 
-                                centilesColour='#0d0c0a' 
-                                width={700} 
-                                height={600}
-                                measurementsArray = {this.state.heights}
-                                measurementsSDSArray = {this.state.height_SDS}
-                                measurementDataPointColour = 'red'
-                            />
-                    )
-                }
-                if (selectedChart === 'weight'){
-                    return (
-                            <RCPCHChartComponent 
-                                key={selectedChart}
-                                measurementMethod='weight' 
-                                sex={this.state.sex}
-                                centilesColour='#0d0c0a' 
-                                width={700} 
-                                height={600}
-                                measurementsArray = {this.state.weights}
-                                measurementsSDSArray = {this.state.weight_SDS}
-                                measurementDataPointColour = 'red'
-                            />
-                    )
-                }
-                if (selectedChart === 'ofc'){
-                    return (
-                            <RCPCHChartComponent 
-                                key={selectedChart}
-                                measurementMethod='ofc' 
-                                sex={this.state.sex} 
-                                centilesColour='#0d0c0a' 
-                                width={700} 
-                                height={600}
-                                measurementsArray = {this.state.ofcs}
-                                measurementsSDSArray = {this.state.ofc_SDS}
-                                measurementDataPointColour = 'red'
-                            />
-                    )
-                }
-                if (selectedChart === 'bmi'){
-                    return (
-                            <RCPCHChartComponent 
-                                key={selectedChart}
-                                measurementMethod='bmi' 
-                                sex={this.state.sex} 
-                                centilesColour='#0d0c0a' 
-                                width={700} 
-                                height={600}
-                                measurementsArray = {this.state.bmis}
-                                measurementsSDSArray = {this.state.bmi_SDS}
-                                measurementDataPointColour = 'red'
-                            />
-                    )
-                }
-                else {
-                  return (
-                    <h1>Loading...</h1>
-                  )
-                }
-            })}
-            </div>)
         
+        // set the title of the chart
+        let title=''
+        let subTitle=''
+        if (this.props.reference === "uk-who"){
+            title = "UK-WHO"
+        }
+        else if (this.props.reference === "turner"){
+            title="Turner's Syndrome"
+        }
+        else if (this.props.reference === "trisomy21"){
+            title = "Trisomy 21 (Down's Syndrome)"
+        }
+
+        let sexText = ''
+        let measurementText = ''
+        if (this.props.sex === 'male') {
+            sexText = 'Boys'
+        } else {
+            sexText = 'Girls'
+        }
+
+        switch(this.props.measurementMethod){
+            case("height"):
+                measurementText = "Length/Height"
+                break;
+            case("weight"):
+                measurementText = "Weight"
+                break;
+            case("bmi"):
+                measurementText = "Body Mass Index"
+                break;
+            case("ofc"):
+                measurementText = "Head Circumference"
+                break;
+            default:
+                measurementText = ""
+                break;
+        } 
+        
+        subTitle = (measurementText + " - " + sexText)
+
+        return (
+          <div>
+            { this.state.isLoading ? (
+                <h1>Loading...</h1>
+              ) :
+            
+                (
+                    <RCPCHChartComponent
+                    //   key={measurement_method}
+                        reference={this.props.reference}
+                        measurementMethod={this.state.measurement_method} 
+                        sex={this.props.sex}
+                        title={title}
+                        subtitle={subTitle}
+                        centileColour={this.props.centileColour}
+                        width={this.props.width} 
+                        height={this.props.height}
+                        measurementsArray = {this.state.centile_data}
+                        measurementsSDSArray = {this.state.sds_data}
+                        measurementDataPointColour = {this.props.measurementDataPointColour}
+                    />
+                )
+            }
+        </div>)
     }
 }
 
