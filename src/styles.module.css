@@ -1,7 +1,13 @@
+body {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
 .chartContainer {
-  margin: auto;
+  margin: 0 auto;
   display: block;
-  width: 50%;
+  text-align: center;
 }
 
 .chartTitle {
