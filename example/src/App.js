@@ -8,12 +8,12 @@ const App = () => {
                 reference="uk-who" //the choices are ["uk-who", "turner", "trisomy21"] REQUIRED
                 sex="male" //the choices are ["male", "female"] REQUIRED
                 measurementMethod="height" //the choices are ["height", "weight", "ofc", "bmi"] REQUIRED
-                centileColour="red"
+                centileColour="blue"
                 width={700} 
                 height={600}
                 measurementsArray = {payloadHeights}  // an array of Measurement class objects from dGC API REQUIRED
                 measurementsSDSArray = {[]} // an array of SDS measurements for SDS charts REQUIRED: currently not implemented: pass []
-                measurementDataPointColour = 'red'
+                measurementDataPointColour = 'green'
               />
           </div>)
 }

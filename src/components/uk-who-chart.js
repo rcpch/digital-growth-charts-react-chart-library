@@ -7,7 +7,6 @@ import PlotPoint from './plotpoint'
 class UKWHOChart extends Component {
   constructor(props){
     super(props)
-    
   }
 
   render() {
@@ -29,6 +28,9 @@ class UKWHOChart extends Component {
             // voronoiBlacklist hides the duplicate tooltip text from the line joining the dots
           /> 
         }
+        style={{
+          background: { fill: "lavender" }
+        }}
       >
       <VictoryLegend
         title={[this.props.title, this.props.subtitle]}
@@ -235,7 +237,6 @@ class UKWHOChart extends Component {
             )
           })}
         </VictoryGroup>
-
       </VictoryChart>
     )
   }

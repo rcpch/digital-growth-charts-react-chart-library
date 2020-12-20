@@ -38,7 +38,7 @@ class ChartData extends Component {
     }
 
     componentDidMount(){
-
+        // plot the plottable child data
         const formData = {
           results: this.props.measurementsArray // measurements passed in from the form
         };
@@ -47,8 +47,6 @@ class ChartData extends Component {
         
         results.then(result => { // stores child results in arrays based on measurement_methods in child results
             
-            
-
             const measurement_method = result.child_data.measurement_method
             const centile_data = result.child_data.centile_data
             const sds_data = result.child_data.sds_data
@@ -106,9 +104,7 @@ class ChartData extends Component {
           <div>
             { this.state.isLoading ? (
                 <h1>Loading...</h1>
-              ) :
-            
-                (
+              ) : (
                     <RCPCHChartComponent
                     //   key={measurement_method}
                         reference={this.props.reference}
@@ -119,8 +115,8 @@ class ChartData extends Component {
                         centileColour={this.props.centileColour}
                         width={this.props.width} 
                         height={this.props.height}
-                        measurementsArray = {this.state.centile_data}
-                        measurementsSDSArray = {this.state.sds_data}
+                        measurementsArray = {this.state.centile_data} // this is the plottable child data
+                        measurementsSDSArray = {this.state.sds_data} // this is plottable SDS data
                         measurementDataPointColour = {this.props.measurementDataPointColour}
                     />
                 )

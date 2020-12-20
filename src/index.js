@@ -87,16 +87,7 @@ class RCPCHChartComponent extends Component {
       sex
       measurementsArray (this is an array of measurement objects received from the dGC API)
 
-      optional props include:
-                                key={selectedChart}
-                                measurementMethod: ['height', 'weight', 'bmi', 'ofc' ]
-                                sex: ['male', 'female']
-                                centileColour; '#0d0c0a'
-                                width={700} 
-                                height={600}
-                                measurementsArray = {this.state.heights}
-                                measurementsSDSArray = {this.state.height_SDS}
-                                measurementDataPointColour = 'red'
+      
       growth data point color
       line color
       axis color
