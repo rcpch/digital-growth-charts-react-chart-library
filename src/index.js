@@ -100,7 +100,7 @@ class RCPCHChartComponent extends Component {
 
   constructor(props) {
     super(props)
-
+    
     RCPCHChartComponent.propTypes = {
       measurementMethod: PropTypes.arrayOf(PropTypes.string).isRequired,
       sex: PropTypes.oneOf(["male","female"]).isRequired,
@@ -110,7 +110,8 @@ class RCPCHChartComponent extends Component {
       width: PropTypes.number,
       height: PropTypes.number,
       measurementDataPointColour: PropTypes.string,
-      centileColour: PropTypes.string
+      centileColour: PropTypes.string,
+      chartBackground: PropTypes.string
     }
 
     let allMeasurementPairs = [] // if no growth data is supplied, charts are returned with child plots
@@ -182,6 +183,7 @@ class RCPCHChartComponent extends Component {
             measurementsArray = {this.props.measurementsArray}
             measurementsSDSArray = {this.props.measurementsSDSArray}
             measurementDataPointColour = {this.props.measurementDataPointColour}
+            chartBackground = {this.props.chartBackground}
           />
       }
       { (this.props.reference === 'turner' && this.props.sex === "female" && this.props.measurementMethod === "height") &&
@@ -195,8 +197,9 @@ class RCPCHChartComponent extends Component {
               width={this.props.width} 
               height={this.props.height}
               measurementsArray = {this.props.measurementsArray}
-            measurementsSDSArray = {this.props.measurementsSDSArray}
+              measurementsSDSArray = {this.props.measurementsSDSArray}
               measurementDataPointColour = {this.props.measurementDataPointColour}
+              chartBackground = {this.props.chartBackground}
           />) 
       }
       { this.props.reference === 'uk-who' &&
@@ -212,6 +215,7 @@ class RCPCHChartComponent extends Component {
             measurementsArray = {this.props.measurementsArray}
             measurementsSDSArray = {this.props.measurementsSDSArray}
             measurementDataPointColour = {this.props.measurementDataPointColour}
+            chartBackground = {this.props.chartBackground}
           />
       }
       

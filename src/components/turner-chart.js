@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { Component } from 'react'
-import { VictoryChart, VictoryGroup, VictoryLine, VictoryScatter, VictoryVoronoiContainer, VictoryTooltip, VictoryLegend, VictoryAxis, VictoryLabel, VictoryTheme } from 'victory'
+import { VictoryChart, VictoryGroup, VictoryLine, VictoryScatter, VictoryVoronoiContainer, VictoryTooltip, VictoryLegend, VictoryAxis, VictoryLabel } from 'victory'
 import turnerData from '../chart_data/turners_chart_data'
 import PlotPoint from './plotpoint'
 
@@ -58,7 +58,9 @@ class TurnerChart extends Component {
             // voronoiBlacklist hides the duplicate tooltip text from the line joining the dots
           /> 
         }
-        theme={VictoryTheme.grayscale}
+        style={{
+          background: { fill: this.props.chartBackground }
+        }}
       >
       <VictoryAxis dependentAxis />
       <VictoryAxis

@@ -7,7 +7,7 @@ import PlotPoint from './plotpoint'
 class UKWHOChart extends Component {
   constructor(props){
     super(props)
-    console.log(props);
+
   }
 
   render() {
@@ -30,7 +30,7 @@ class UKWHOChart extends Component {
           /> 
         }
         style={{
-          background: { fill: "lavender" }
+          background: { fill: this.props.chartBackground }
         }}
       >
       <VictoryLegend
@@ -65,7 +65,7 @@ class UKWHOChart extends Component {
         <VictoryGroup
           name="uk90_preterm"
         >
-          {ukwhoData.uk90_preterm.female.height.map((centile, index) => {
+          {ukwhoData.uk90_preterm[this.props.sex][this.props.measurementMethod].map((centile, index) => {
             if (index % 2 === 0) {
               return (
                 <VictoryLine
@@ -103,7 +103,7 @@ class UKWHOChart extends Component {
         <VictoryGroup
           name="uk_who_infant"
         >
-          {ukwhoData.uk_who_infant.female.height.map((centile, index) => {
+          {ukwhoData.uk_who_infant[this.props.sex][this.props.measurementMethod].map((centile, index) => {
             if (index % 2 === 0) {
               return (
                 <VictoryLine
@@ -141,7 +141,7 @@ class UKWHOChart extends Component {
         <VictoryGroup
           name="uk_who_child"
         >
-          {ukwhoData.uk_who_child.female.height.map((centile, index) => {
+          {ukwhoData.uk_who_child[this.props.sex][this.props.measurementMethod].map((centile, index) => {
             if (index % 2 === 0) {
               return (
                 <VictoryLine
@@ -179,7 +179,7 @@ class UKWHOChart extends Component {
         <VictoryGroup
           name="uk90_child"
         >
-          {ukwhoData.uk90_child.female.height.map((centile, index) => {
+          {ukwhoData.uk90_child[this.props.sex][this.props.measurementMethod].map((centile, index) => {
             if (index % 2 === 0) {
               return (
                 <VictoryLine

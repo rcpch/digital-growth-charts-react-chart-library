@@ -129,6 +129,7 @@ class ChartData extends Component {
                         measurementsArray = {this.state.centile_data} // this is the plottable child data
                         measurementsSDSArray = {this.state.sds_data} // this is plottable SDS data
                         measurementDataPointColour = {this.props.measurementDataPointColour}
+                        chartBackground = {this.props.chartBackground}
                     />
                 )
             }

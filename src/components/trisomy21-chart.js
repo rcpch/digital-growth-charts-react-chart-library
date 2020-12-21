@@ -7,7 +7,7 @@ import PlotPoint from './plotpoint'
 class Trisomy21Chart extends Component {
   constructor(props){
     super(props)
-    const allMeasurementPairs = props.allMeasurementPairs
+    console.log(props);
     let data = {}
     if (props.measurementMethod==="height"){
       if (props.sex === "male"){
@@ -64,6 +64,9 @@ class Trisomy21Chart extends Component {
             }}
           />
         }
+        style={{
+          background: { fill: this.props.chartBackground }
+        }}
       >
         <VictoryLegend
           title={[this.props.title, this.props.subtitle]}
@@ -131,7 +134,8 @@ class Trisomy21Chart extends Component {
           })}
         </VictoryGroup>
         {/* create a series for each datapoint */}
-        <VictoryGroup>
+        {this.props.allMeasurementPairs.length > 0 && 
+          <VictoryGroup>
           { this.props.allMeasurementPairs.map((measurementPair, index) => {
             return (
               <VictoryGroup
@@ -149,7 +153,7 @@ class Trisomy21Chart extends Component {
               </VictoryGroup>
             )
           })}
-        </VictoryGroup>
+        </VictoryGroup>}
 
       </VictoryChart>
     )
