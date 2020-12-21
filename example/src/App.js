@@ -11,8 +11,7 @@ const App = () => {
                 centileColour="blue"
                 width={700} 
                 height={600}
-                measurementsArray = {payloadHeights}  // an array of Measurement class objects from dGC API REQUIRED
-                measurementsSDSArray = {[]} // an array of SDS measurements for SDS charts REQUIRED: currently not implemented: pass []
+                measurementsArray = {[]}  // an array of Measurement class objects from dGC API optional
                 measurementDataPointColour = 'green'
               />
           </div>)

@@ -38,23 +38,34 @@ class ChartData extends Component {
     }
 
     componentDidMount(){
-        // plot the plottable child data
-        const formData = {
-          results: this.props.measurementsArray // measurements passed in from the form
-        };
 
-        const results = this.fetchCentileData(formData); //async function to fetch plottable child data
-        
-        results.then(result => { // stores child results in arrays based on measurement_methods in child results
-            
-            const measurement_method = result.child_data.measurement_method
-            const centile_data = result.child_data.centile_data
-            const sds_data = result.child_data.sds_data
+        // if measurement results are supplied, generate plottable data
+        if (this.props.measurementsArray.length > 0){
+            // plot the plottable child data
+            const formData = {
+            results: this.props.measurementsArray // measurements passed in from the form
+          };
+  
+          const results = this.fetchCentileData(formData); //async function to fetch plottable child data
+          
+          results.then(result => { // stores child results in arrays based on measurement_methods in child results
+              
+              const measurement_method = result.child_data.measurement_method
+              const centile_data = result.child_data.centile_data
+              const sds_data = result.child_data.sds_data
+              this.setState({measurement_method: measurement_method})
+              this.setState({centile_data: centile_data})
+              this.setState({sds_data: sds_data})
+              this.setState({isLoading: false}) // data returned from API. set isLoading flag to false
+          })
+        } else {
+            const measurement_method = this.props.measurementMethod
             this.setState({measurement_method: measurement_method})
-            this.setState({centile_data: centile_data})
-            this.setState({sds_data: sds_data})
-            this.setState({isLoading: false}) // data returned from API. set isLoading flag to false
-        })
+            this.setState({centile_data: []})
+            this.setState({sds_data: []})
+            this.setState({isLoading: false}) //skip the child measurements, render charts without
+        }
+        
     }
 
     render(){

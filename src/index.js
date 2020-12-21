@@ -113,32 +113,38 @@ class RCPCHChartComponent extends Component {
       centileColour: PropTypes.string
     }
 
-    const allMeasurementPairs = props.measurementsArray.map(
-      (measurementPair, index) => {
-        // iterates through each supplied child measurement and returns a scatter series for each data pair
-        // One value for chronological age, one for corrected age.
-        // If there is no corrected age, only a dot is rendered, otherwise a cross is returned
-        //  for the corrected age, connected by a line to theme chronological age value rendered as a dot.
-        measurementPair[0].symbol = 'plus'
-        measurementPair[0].size = 5
-        
-        if (
-          measurementPair.length > 1 
-        ) {
-          measurementPair[1].symbol = ""
-          measurementPair[1].size = 5
+    let allMeasurementPairs = [] // if no growth data is supplied, charts are returned with child plots
+
+    if (this.props.measurementsArray.length > 0 ){
+      allMeasurementPairs = props.measurementsArray.map(
+        (measurementPair, index) => {
+          // iterates through each supplied child measurement and returns a scatter series for each data pair
+          // One value for chronological age, one for corrected age.
+          // If there is no corrected age, only a dot is rendered, otherwise a cross is returned
+          //  for the corrected age, connected by a line to theme chronological age value rendered as a dot.
+          measurementPair[0].symbol = 'plus'
+          measurementPair[0].size = 5
           
-          if (measurementPair[0].x === measurementPair[1].x){
-            // no correction for gestational age has been made
-            // remove the first value of the pair (corrected age)
-            // to prevent plotting a cross ontop of a dot
-            measurementPair.splice(0, 1)
+          if (
+            measurementPair.length > 1 
+          ) {
+            measurementPair[1].symbol = ""
+            measurementPair[1].size = 5
+            
+            if (measurementPair[0].x === measurementPair[1].x){
+              // no correction for gestational age has been made
+              // remove the first value of the pair (corrected age)
+              // to prevent plotting a cross ontop of a dot
+              measurementPair.splice(0, 1)
+            }
           }
+          
+          return measurementPair
         }
-        
-        return measurementPair
-      }
-    )
+      )
+    } else {
+      allMeasurementPairs = []
+    }
 
     this.state = ({allMeasurementPairs: allMeasurementPairs})
 
@@ -173,8 +179,8 @@ class RCPCHChartComponent extends Component {
             sex={this.props.sex}
             width={this.props.width} 
             height={this.props.height}
-            measurementsArray = {this.state.heights}
-            measurementsSDSArray = {this.state.height_SDS}
+            measurementsArray = {this.props.measurementsArray}
+            measurementsSDSArray = {this.props.measurementsSDSArray}
             measurementDataPointColour = {this.props.measurementDataPointColour}
           />
       }
@@ -188,8 +194,8 @@ class RCPCHChartComponent extends Component {
               sex={this.props.sex}
               width={this.props.width} 
               height={this.props.height}
-              measurementsArray = {this.state.heights}
-              measurementsSDSArray = {this.state.height_SDS}
+              measurementsArray = {this.props.measurementsArray}
+            measurementsSDSArray = {this.props.measurementsSDSArray}
               measurementDataPointColour = {this.props.measurementDataPointColour}
           />) 
       }
@@ -203,8 +209,8 @@ class RCPCHChartComponent extends Component {
             sex={this.props.sex}
             width={this.props.width} 
             height={this.props.height}
-            measurementsArray = {this.state.heights}
-            measurementsSDSArray = {this.state.height_SDS}
+            measurementsArray = {this.props.measurementsArray}
+            measurementsSDSArray = {this.props.measurementsSDSArray}
             measurementDataPointColour = {this.props.measurementDataPointColour}
           />
       }

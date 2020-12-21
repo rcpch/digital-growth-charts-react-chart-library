@@ -7,6 +7,7 @@ import PlotPoint from './plotpoint'
 class UKWHOChart extends Component {
   constructor(props){
     super(props)
+    console.log(props);
   }
 
   render() {
@@ -214,7 +215,7 @@ class UKWHOChart extends Component {
           })}
         </VictoryGroup>
         {/* create a series for each datapoint */}
-        <VictoryGroup>
+        {this.props.measurementsArray.length > 0 && <VictoryGroup>
           { this.props.allMeasurementPairs.map((measurementPair, index) => {
             return (
               <VictoryGroup
@@ -236,7 +237,7 @@ class UKWHOChart extends Component {
               </VictoryGroup>
             )
           })}
-        </VictoryGroup>
+        </VictoryGroup>}
       </VictoryChart>
     )
   }
