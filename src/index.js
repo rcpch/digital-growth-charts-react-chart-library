@@ -95,14 +95,14 @@ class RCPCHChartComponent extends Component {
       label size
       chart background color
 
-    */
+    */ 
   
 
   constructor(props) {
     super(props)
     
     RCPCHChartComponent.propTypes = {
-      measurementMethod: PropTypes.arrayOf(PropTypes.string).isRequired,
+      measurementMethod: PropTypes.oneOf(["height", "weight", "ofc", "bmi"]).isRequired,
       sex: PropTypes.oneOf(["male","female"]).isRequired,
       measurementsArray: PropTypes.array.isRequired,
       measurementsSDSArray: PropTypes.array.isRequired,
