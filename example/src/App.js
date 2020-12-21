@@ -5,15 +5,15 @@ const App = () => {
   return (
           <div className='container'>
               <ChartData
-                reference="turner" //the choices are ["uk-who", "turner", "trisomy21"] REQUIRED
-                sex="female" //the choices are ["male", "female"] REQUIRED
-                measurementMethod="height" //the choices are ["height", "weight", "ofc", "bmi"] REQUIRED
+                reference="uk-who" //the choices are ["uk-who", "turner", "trisomy21"] REQUIRED
+                sex="male" //the choices are ["male", "female"] REQUIRED
+                measurementMethod="ofc" //the choices are ["height", "weight", "ofc", "bmi"] REQUIRED
                 centileColour="black"
                 chartBackground='white'
                 width={700} 
                 height={600}
                 measurementsArray = {[]}  // an array of Measurement class objects from dGC API optional
-                measurementDataPointColour = 'lavender'
+                measurementDataPointColour = 'red'
               />
           </div>)
 }

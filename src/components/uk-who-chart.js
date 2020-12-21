@@ -65,7 +65,7 @@ class UKWHOChart extends Component {
         <VictoryGroup
           name="uk90_preterm"
         >
-          {ukwhoData.uk90_preterm[this.props.sex][this.props.measurementMethod].map((centile, index) => {
+          { this.props.measurementMethod!=="bmi" && ukwhoData.uk90_preterm[this.props.sex][this.props.measurementMethod].map((centile, index) => {
             if (index % 2 === 0) {
               return (
                 <VictoryLine
